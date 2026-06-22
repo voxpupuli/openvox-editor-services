@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift(File.join(__dir__, 'lib'))
+
+require 'puppet_debugserver'
+
+options = PuppetDebugServer::CommandLineParser.parse(ARGV)
+PuppetDebugServer.init_puppet(options)
+PuppetDebugServer.execute(PuppetDebugServer.rpc_server_async(options))
+

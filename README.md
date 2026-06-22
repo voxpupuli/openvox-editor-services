@@ -1,14 +1,10 @@
-# Puppet Editor Services
+# OpenVox Editor Services
 
-[![Code Owners](https://img.shields.io/badge/owners-DevX--team-blue)](https://github.com/puppetlabs/puppet-editor-services/blob/main/CODEOWNERS)
-![ci](https://github.com/puppetlabs/puppet-editor-services/actions/workflows/ci.yml/badge.svg)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/puppetlabs/puppet-editor-services)
-
-A ruby based implementation of a [Language Server](https://github.com/Microsoft/language-server-protocol) and [Debug Server](https://github.com/microsoft/debug-adapter-protocol) for the Puppet Language. Integrate this into your editor to benefit from full Puppet Language support, such as syntax hightlighting, linting, hover support and more.
+A Ruby implementation of a [Language Server](https://github.com/Microsoft/language-server-protocol) and [Debug Server](https://github.com/microsoft/debug-adapter-protocol) for OpenVox. The internal `Puppet` Ruby namespace and `puppet/*` protocol methods are retained for compatibility.
 
 ## Requirements
 
-* Puppet 8 or above
+* OpenVox 8 or above
 
 * Ruby 3.1 or above
 
@@ -16,14 +12,14 @@ A ruby based implementation of a [Language Server](https://github.com/Microsoft/
 
 * Ensure a modern ruby is installed (3.1+)
 
-  The editor services support Puppet 8.0.0 and above
+  The editor services support OpenVox 8.0.0 and above.
 
 * Clone this repository
 
 ```bash
-> git clone https://github.com/puppetlabs/puppet-editor-services.git
+> git clone https://github.com/voxpupuli/openvox-editor-services.git
 
-> cd puppet-editor-services
+> cd openvox-editor-services
 ```
 
 * Bundle the development gems
@@ -152,6 +148,7 @@ Usage: puppet-languageserver.rb [options]
         --enable-file-cache          ** DEPRECATED ** Enables the file system cache for Puppet Objects (types, class etc.)
         --[no-]cache                 Enable or disable all caching inside the sidecar. By default caching is enabled.
         --feature-flags=FLAGS        A list of comma delimited feature flags
+        --openvox-version=TEXT       The OpenVox Gem version to use
         --puppet-settings=TEXT       Comma delimited list of settings to pass into Puppet e.g. --vardir,/opt/test-fixture
         --local-workspace=PATH       The workspace or file path that will be used to provide module-specific functionality. Default is no workspace path.
     -h, --help                       Prints this help

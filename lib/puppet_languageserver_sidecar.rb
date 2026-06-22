@@ -5,6 +5,8 @@ begin
   $VERBOSE = nil
 
   require 'puppet_editor_services'
+  require 'openvox_runtime'
+  require 'openfact_runtime'
   require 'optparse'
   require 'logger'
   require 'json'
@@ -39,19 +41,19 @@ module PuppetLanguageServerSidecar
     original_verbose = $VERBOSE
     $VERBOSE = nil
 
-    # Use specific Puppet Gem version if possible
+    # Use a specific OpenVox Gem version if requested.
     unless options[:puppet_version].nil?
-      available_puppet_gems = Gem::Specification
-                              .select { |item| item.name.casecmp('puppet').zero? }
-                              .map { |item| item.version.to_s }
-      if available_puppet_gems.include?(options[:puppet_version])
-        gem 'puppet', options[:puppet_version]
+      available_openvox_gems = OpenVoxRuntime.available_versions
+      if available_openvox_gems.include?(options[:puppet_version])
+        OpenVoxRuntime.activate!(options[:puppet_version])
       else
-        log_message(:warn, "Unable to use puppet version #{options[:puppet_version]}, as only the following versions are available [#{available_puppet_gems.join(', ')}]")
+        log_message(:warn, "Unable to use OpenVox version #{options[:puppet_version]}, as only the following versions are available [#{available_openvox_gems.join(', ')}]")
+        OpenVoxRuntime.activate!
       end
+    else
+      OpenVoxRuntime.activate!
     end
-
-    require 'puppet'
+    OpenFactRuntime.activate!
 
     # Validate the feature flags
     unless options[:flags].nil? || options[:flags].empty?
@@ -144,7 +146,7 @@ module PuppetLanguageServerSidecar
           args[:puppet_settings] = text
         end
 
-        opts.on('--puppet-version=TEXT', String, 'The version of the Puppet Gem to use (defaults to latest version if not specified or the version does not exist) e.g. --puppet-version=5.4.0') do |text|
+        opts.on('--openvox-version=TEXT', '--puppet-version=TEXT', String, 'The version of the OpenVox Gem to use (defaults to latest version if not specified or unavailable)') do |text|
           args[:puppet_version] = text
         end
 
@@ -188,9 +190,10 @@ module PuppetLanguageServerSidecar
     log_message(:info, "Language Server Sidecar is v#{PuppetLanguageServerSidecar.version}")
     log_message(:debug, 'Loading gems...')
     require_gems(options)
-    log_message(:info, "Using Puppet v#{Puppet.version}")
+    log_message(:info, "Using OpenVox gem v#{OpenVoxRuntime.gem_version} (Puppet API v#{Puppet.version})")
+    log_message(:info, "Using OpenFact gem v#{OpenFactRuntime.gem_version} (Facter API v#{Facter.version})")
 
-    raise("Detected Puppet #{Puppet.version} however the Language Server Sidecar requires Puppet 5.0 and above") if Gem::Version.new(Puppet.version) < Gem::Version.new('5.0.0')
+    raise("Detected OpenVox #{Puppet.version} however the Language Server Sidecar requires OpenVox 8.0 and above") if Gem::Version.new(Puppet.version) < Gem::Version.new('8.0.0')
 
     log_message(:debug, "Detected additional puppet settings #{options[:puppet_settings]}")
     options[:puppet_settings].nil? ? Puppet.initialize_settings : Puppet.initialize_settings(options[:puppet_settings])

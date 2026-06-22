@@ -2,6 +2,8 @@
 
 require 'puppet_editor_services/handler/json_rpc'
 require 'puppet_editor_services/protocol/json_rpc_messages'
+require 'openvox_runtime'
+require 'openfact_runtime'
 require 'puppet-languageserver/server_capabilities'
 require 'puppet-languageserver/client_session_state'
 require 'puppet-languageserver/global_queues'
@@ -60,7 +62,11 @@ module PuppetLanguageServer
     def request_puppet_getversion(_, _json_rpc_message)
       LSP::PuppetVersion.new(
         'languageServerVersion' => PuppetEditorServices.version,
+        'runtimeName' => OpenVoxRuntime.gem_name,
+        'runtimeGemVersion' => OpenVoxRuntime.gem_version,
         'puppetVersion' => Puppet.version,
+        'factRuntimeName' => OpenFactRuntime.gem_name,
+        'factRuntimeGemVersion' => OpenFactRuntime.gem_version,
         'facterVersion' => Facter.version,
         'factsLoaded' => session_state.facts_loaded?,
         'functionsLoaded' => session_state.default_functions_loaded?,
@@ -297,14 +303,14 @@ module PuppetLanguageServer
 
     def notification_initialized(_, _json_rpc_message)
       PuppetLanguageServer.log_message(:info, 'Client has received initialization')
-      # Raise a warning if the Puppet version is mismatched
+      # Raise a warning if the OpenVox version is mismatched
       server_options = protocol.connection.server.server_options
       unless server_options[:puppet_version].nil? || server_options[:puppet_version] == Puppet.version
         protocol.encode_and_send(
           ::PuppetEditorServices::Protocol::JsonRPCMessages.new_notification(
             'window/showMessage',
             'type' => LSP::MessageType::WARNING,
-            'message' => "Unable to use Puppet version '#{server_options[:puppet_version]}' as it is not available. Using version '#{Puppet.version}' instead."
+            'message' => "Unable to use OpenVox version '#{server_options[:puppet_version]}' as it is not available. Using version '#{Puppet.version}' instead."
           )
         )
       end
@@ -433,6 +439,8 @@ module PuppetLanguageServer
       # case just fake the response that we are fully loaded with unknown gem versions
       LSP::PuppetVersion.new(
         'languageServerVersion' => PuppetEditorServices.version,
+        'runtimeName' => 'openvox',
+        'runtimeGemVersion' => 'Unknown',
         'puppetVersion' => 'Unknown',
         'facterVersion' => 'Unknown',
         'factsLoaded' => true,

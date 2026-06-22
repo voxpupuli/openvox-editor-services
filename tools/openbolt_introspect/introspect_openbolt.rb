@@ -3,14 +3,14 @@ require 'json'
 
 class Introspecter
   attr_reader :root_dir
-  attr_reader :bolt_gem_dir
+  attr_reader :openbolt_gem_dir
   attr_reader :static_data_dir
 
   def initialize
-    bolt_gem = Gem::Specification.find_by_name('bolt')
-    raise "Could not find the bolt gem" if bolt_gem.nil?
-    @bolt_gem_dir = bolt_gem.gem_dir
-    raise "Could not find the bolt gem directory" if @bolt_gem_dir.nil?
+    openbolt_gem = Gem::Specification.find_by_name('openbolt')
+    raise "Could not find the openbolt gem" if openbolt_gem.nil?
+    @openbolt_gem_dir = openbolt_gem.gem_dir
+    raise "Could not find the openbolt gem directory" if @openbolt_gem_dir.nil?
     @root_dir = File.expand_path(File.join(__dir__, '..', '..'))
     @static_data_dir = File.join(root_dir, 'lib', 'puppet-languageserver', 'static_data')
 
@@ -27,7 +27,7 @@ class Introspecter
 
   def mock_metadata(module_name)
     <<-METADATA
-    { "name": "pes-#{module_name}", "version": "1.0.0", "author": "pes", "license": "MIT", "summary": "Summary", "source": "bolt-gem", "dependencies": [] }
+    { "name": "pes-#{module_name}", "version": "1.0.0", "author": "pes", "license": "MIT", "summary": "Summary", "source": "openbolt-gem", "dependencies": [] }
     METADATA
   end
 
@@ -114,9 +114,9 @@ introspecter = Introspecter.new
 introspecter.clean_output_dir
 
 ['bolt-modules', 'modules'].each do |modules_path|
-  absolute_modules_path = File.join(introspecter.bolt_gem_dir, modules_path)
+  absolute_modules_path = File.join(introspecter.openbolt_gem_dir, modules_path)
   unless Dir.exist?(absolute_modules_path)
-    warn "Bolt module path #{absolute_modules_path} does not exist"
+    warn "OpenBolt module path #{absolute_modules_path} does not exist"
     next
   end
 

@@ -14,6 +14,8 @@ group :development do
   gem 'puppet-lint', '~> 4.0',            :require => false
   gem 'puppetfile-resolver', '~> 0.6.2',  :require => false
   gem 'yard', '~> 0.9.28',                :require => false
+  gem 'openvox-strings', '~> 7.1',         :require => false
+  gem 'openfact', '>= 5.1', '< 6',         :require => false
   gem "rubocop", '~> 1.73.0',             :require => false
   gem "rubocop-performance", '~> 1.24.0', :require => false
   gem "rubocop-rspec", '~> 3.5.0',        :require => false
@@ -24,10 +26,10 @@ group :development do
   gem 'simplecov-console',                :require => false
   gem 'json', "< 2.8.0",                  :require => false
 
-  if ENV['PUPPET_GEM_VERSION']
-    gem 'puppet', ENV['PUPPET_GEM_VERSION'], :require => false
+  if ENV['OPENVOX_GEM_VERSION']
+    gem 'openvox', ENV['OPENVOX_GEM_VERSION'], :require => false
   else
-    gem 'puppet',                            :require => false
+    gem 'openvox',                           :require => false
   end
 
   case RUBY_PLATFORM

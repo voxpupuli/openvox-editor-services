@@ -73,18 +73,18 @@ EOT
         result = subject.resolve(session_state, content, 0, 1, { :tasks_mode => true})
       end
 
-      it 'should find bolt specific data types' do
+      it 'should find OpenBolt-specific data types' do
         result = subject.resolve(session_state, content, 1, 15, { :tasks_mode => true})
         expect(result.contents).to start_with("**TargetSpec** Data Type Alias\n")
       end
 
-      it 'should find bolt specific functions' do
+      it 'should find OpenBolt-specific functions' do
         result = subject.resolve(session_state, content, 3, 36, { :tasks_mode => true})
         expect(result.contents).to start_with("**get_targets** Function\n")
       end
     end
 
-    context 'When using Bolt specific information in a normal manifest' do
+    context 'When using OpenBolt-specific information in a normal manifest' do
       let(:content) { <<-EOT
         class mymodule::my_plan(
           TargetSpec $webservers,
@@ -94,11 +94,11 @@ EOT
         EOT
       }
 
-      it "should raise an error for Bolt datatypes" do
+      it "should raise an error for OpenBolt datatypes" do
         expect{subject.resolve(session_state, content, 1, 15, { :tasks_mode => false})}.to raise_error(RuntimeError)
       end
 
-      it "should raise an error for Bolt functions" do
+      it "should raise an error for OpenBolt functions" do
         expect{subject.resolve(session_state, content, 3, 36, { :tasks_mode => false})}.to raise_error(RuntimeError)
       end
     end
