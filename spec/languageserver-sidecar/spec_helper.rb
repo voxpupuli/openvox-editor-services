@@ -7,7 +7,8 @@ root = File.join(File.dirname(__FILE__),'..','..')
 $LOAD_PATH.unshift(File.join(root,'lib'))
 # Add the vendored gems into the load path
 $LOAD_PATH.unshift(File.join(root, 'vendor', 'yard', 'lib'))
-$LOAD_PATH.unshift(File.join(root, 'vendor', 'puppet-strings', 'lib'))
+$LOAD_PATH.unshift(File.join(root, 'vendor', 'openvox-strings', 'lib'))
+$LOAD_PATH.unshift(File.join(root, 'vendor', 'rgen', 'lib'))
 
 require 'puppet_languageserver_sidecar'
 # rubocop:disable Style/GlobalVars

@@ -8,19 +8,27 @@ module LSP
   #   puppetVersion: string;
   #   facterVersion: string;
   #   languageServerVersion: string;
+  #   runtimeName: string;
+  #   runtimeGemVersion: string;
+  #   factRuntimeName: string;
+  #   factRuntimeGemVersion: string;
   #   factsLoaded: boolean;
   #   functionsLoaded: boolean;
   #   typesLoaded: boolean;
   #   classesLoaded: boolean;
   # }
   class PuppetVersion < LSPBase
-    attr_accessor :puppetVersion, :facterVersion, :languageServerVersion, :factsLoaded, :functionsLoaded, :typesLoaded, :classesLoaded # type: string # type: string # type: string # type: boolean # type: boolean # type: boolean # type: boolean
+    attr_accessor :puppetVersion, :facterVersion, :languageServerVersion, :runtimeName, :runtimeGemVersion, :factRuntimeName, :factRuntimeGemVersion, :factsLoaded, :functionsLoaded, :typesLoaded, :classesLoaded # type: string # type: string # type: string # type: string # type: string # type: string # type: string # type: boolean # type: boolean # type: boolean # type: boolean
 
     def from_h!(value)
       value = {} if value.nil?
       self.puppetVersion = value['puppetVersion']
       self.facterVersion = value['facterVersion']
       self.languageServerVersion = value['languageServerVersion']
+      self.runtimeName = value['runtimeName']
+      self.runtimeGemVersion = value['runtimeGemVersion']
+      self.factRuntimeName = value['factRuntimeName']
+      self.factRuntimeGemVersion = value['factRuntimeGemVersion']
       self.factsLoaded = value['factsLoaded']
       self.functionsLoaded = value['functionsLoaded']
       self.typesLoaded = value['typesLoaded']

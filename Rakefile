@@ -83,9 +83,14 @@ task :gem_revendor do
       :github_ref => '0.6.6',
     },
     {
-      :directory => 'puppet-strings',
-      :github_repo => 'https://github.com/puppetlabs/puppet-strings.git',
-      :github_ref => 'v4.1.2',
+      :directory => 'openvox-strings',
+      :github_repo => 'https://github.com/voxpupuli/openvox-strings.git',
+      :github_ref => 'v7.1.0',
+    },
+    {
+      :directory => 'rgen',
+      :github_repo => 'https://github.com/mthiede/rgen.git',
+      :github_ref => 'v0.10.2',
     },
     {
       :directory => 'yard',
@@ -97,9 +102,10 @@ task :gem_revendor do
   # Clean out the vendor directory first
   puts "Clearing the vendor directory..."
   vendor_dir = File.join(File.dirname(__FILE__),'vendor')
+  FileUtils.rm_rf(File.join(vendor_dir, 'puppet-strings'))
   gem_list.each do |vendor|
     gem_dir = File.join(vendor_dir,vendor[:directory])
-    FileUtils.rm_rf(gem_dir) if Dir.exist?(gem_dir) 
+    FileUtils.rm_rf(gem_dir) if Dir.exist?(gem_dir)
   end
   Dir.mkdir(vendor_dir) unless Dir.exist?(vendor_dir)
 
@@ -124,9 +130,9 @@ task :gem_revendor do
   readme = <<-HEREDOC
 # Vendored Gems
 
-The puppet language server is designed to run within the Puppet Agent ruby environment which means no access to Native Extensions or Gem bundling.
+The OpenVox Puppet DSL server is designed to run within the OpenVox Agent Ruby environment, which means no access to native extensions or Gem bundling.
 
-This means any Gems required outside of Puppet Agent for the language server must be vendored in this directory and the load path modified in the `puppet-languageserver` file.
+This means any Gems required outside of the OpenVox runtime for the language server must be vendored in this directory and the load path modified in the `openvox-languageserver` file.
 
 Note - To comply with Licensing, the Gem source should be MIT licensed or even more unrestricted.
 
@@ -151,7 +157,7 @@ task build: [:gem_revendor] do
   project_dir = File.dirname(__FILE__)
   output_dir = File.join(project_dir, './pkg/')
 
-  file_list = ['lib', 'vendor', 'puppet-languageserver', 'puppet-debugserver', 'puppet-languageserver-sidecar', 'LICENSE']
+  file_list = ['lib', 'vendor', 'openvox-languageserver', 'openvox-debugserver', 'openvox-languageserver-sidecar', 'LICENSE']
   # Remove files in the list that do not exist.
   file_list.reject! { |filepath| !File.exist?(filepath) }
 
@@ -165,12 +171,12 @@ task build: [:gem_revendor] do
   puts "Editor services is v#{version}"
 
   puts "Creating zip file..."
-  zip_archive_file = File.join(output_dir,"puppet_editor_services_v#{version}.zip")
+  zip_archive_file = File.join(output_dir,"openvox_editor_services_v#{version}.zip")
   Archive::Zip.archive(zip_archive_file, file_list)
   puts "Created #{zip_archive_file}"
 
   puts "Creating tar file..."
-  tar_archive_file = File.join(output_dir,"puppet_editor_services_v#{version}.tar.gz")
+  tar_archive_file = File.join(output_dir,"openvox_editor_services_v#{version}.tar.gz")
   Minitar.pack(file_list, Zlib::GzipWriter.new(File.open(tar_archive_file, 'wb')))
   puts "Created #{tar_archive_file}"
 

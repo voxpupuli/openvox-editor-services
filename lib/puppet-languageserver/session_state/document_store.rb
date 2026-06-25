@@ -123,7 +123,7 @@ module PuppetLanguageServer
         end
       end
 
-      # Plan files https://puppet.com/docs/bolt/1.x/writing_plans.html#concept-4485 can exist in many places
+      # OpenBolt plan files can exist in several compatible module locations.
       # The current best detection method is as follows:
       # "Given the full path to the .pp file, if it contains a directory called plans, AND that plans is not a sub-directory of manifests, then it is a plan file"
       #

@@ -169,8 +169,20 @@ describe 'PuppetLanguageServer::MessageHandler' do
       it 'should reply with the Facter Version' do
         expect(subject.request_puppet_getversion(connection_id, request_message)).to method_not_nil(:facterVersion)
       end
+      it 'should identify the OpenFact runtime' do
+        expect(subject.request_puppet_getversion(connection_id, request_message).factRuntimeName).to eq('openfact')
+      end
+      it 'should reply with the OpenFact gem version' do
+        expect(subject.request_puppet_getversion(connection_id, request_message)).to method_not_nil(:factRuntimeGemVersion)
+      end
       it 'should reply with the Language Server version' do
         expect(subject.request_puppet_getversion(connection_id, request_message)).to method_not_nil(:languageServerVersion)
+      end
+      it 'should identify the OpenVox runtime' do
+        expect(subject.request_puppet_getversion(connection_id, request_message).runtimeName).to eq('openvox')
+      end
+      it 'should reply with the OpenVox gem version' do
+        expect(subject.request_puppet_getversion(connection_id, request_message)).to method_not_nil(:runtimeGemVersion)
       end
       it 'should reply with whether the facts are loaded' do
         expect(subject.request_puppet_getversion(connection_id, request_message)).to method_not_nil(:factsLoaded)
@@ -901,7 +913,7 @@ describe 'PuppetLanguageServer::MessageHandler' do
           
             expected_message = {
               'type' => LSP::MessageType::WARNING,
-              'message' => "Unable to use Puppet version '#{server_options[:puppet_version]}' as it is not available. Using version '#{Puppet.version}' instead."
+              'message' => "Unable to use OpenVox version '#{server_options[:puppet_version]}' as it is not available. Using version '#{Puppet.version}' instead."
             }
           
             expect(protocol).to receive(:encode_and_send) do |arg|

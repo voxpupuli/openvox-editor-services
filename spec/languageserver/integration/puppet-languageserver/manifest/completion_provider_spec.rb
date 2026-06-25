@@ -110,7 +110,7 @@ describe 'completion_provider' do
         result = subject.complete(session_state, content, 0, 1, { :tasks_mode => true})
       end
 
-      it 'should suggest Bolt functions' do
+      it 'should suggest OpenBolt functions' do
         expect(session_state.static_data_loaded?).to eq(true)
         result = subject.complete(session_state, content, 2, 1, { :tasks_mode => true})
 
@@ -479,7 +479,7 @@ EOT
         end
       end
 
-      context 'for a Bolt function (run_task)' do
+      context 'for an OpenBolt function (run_task)' do
         it 'should return the documentation' do
           @resolve_request.data['name'] = 'run_task'
           result = subject.resolve(session_state, @resolve_request)

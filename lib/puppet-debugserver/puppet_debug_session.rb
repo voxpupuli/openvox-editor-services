@@ -364,7 +364,7 @@ module PuppetDebugServer
     # @return [SourcePosition] The location of the object
     def get_location_from_pops_object(obj)
       # TODO: Should really use the SourceAdpater
-      # https://github.com/puppetlabs/puppet-strings/blob/ede2b0e76c278c98d57aa80a550971e934ba93ef/lib/puppet-strings/yard/parsers/puppet/statement.rb#L22-L25
+      # https://github.com/voxpupuli/openvox-strings/blob/v7.1.0/lib/openvox-strings/yard/parsers/puppet/statement.rb
       pos = SourcePosition.new
       return pos unless obj.is_a?(Puppet::Pops::Model::Positioned)
 
@@ -395,7 +395,7 @@ module PuppetDebugServer
     # @return [Integer] The position in the line
     def pos_on_line(obj, offset)
       # TODO: Should really use the SourceAdpater
-      # https://github.com/puppetlabs/puppet-strings/blob/ede2b0e76c278c98d57aa80a550971e934ba93ef/lib/puppet-strings/yard/parsers/puppet/statement.rb#L22-L25
+      # https://github.com/voxpupuli/openvox-strings/blob/v7.1.0/lib/openvox-strings/yard/parsers/puppet/statement.rb
 
       # Puppet 5 exposes the source locator on the Pops object
       return obj.locator.pos_on_line(offset) if obj.respond_to?(:locator)
@@ -412,7 +412,7 @@ module PuppetDebugServer
     # @return [Integer] The position in the line
     def line_for_offset(obj, offset)
       # TODO: Should really use the SourceAdpater
-      # https://github.com/puppetlabs/puppet-strings/blob/ede2b0e76c278c98d57aa80a550971e934ba93ef/lib/puppet-strings/yard/parsers/puppet/statement.rb#L22-L25
+      # https://github.com/voxpupuli/openvox-strings/blob/v7.1.0/lib/openvox-strings/yard/parsers/puppet/statement.rb
 
       # Puppet 5 exposes the source locator on the Pops object
       return obj.locator.line_for_offset(offset) if obj.respond_to?(:locator)

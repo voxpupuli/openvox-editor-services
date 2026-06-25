@@ -14,14 +14,14 @@ module PuppetLanguageServerSidecar
       return @puppet_strings_loaded unless @puppet_strings_loaded.nil?
 
       begin
-        require 'puppet-strings'
-        require 'puppet-strings/yard'
-        require 'puppet-strings/json'
+        require 'openvox-strings'
+        require 'openvox-strings/yard'
+        require 'openvox-strings/json'
 
         require File.expand_path(File.join(File.dirname(__FILE__), 'puppet_strings_monkey_patches'))
         @puppet_strings_loaded = true
       rescue LoadError => e
-        PuppetLanguageServerSidecar.log_message(:error, "[PuppetStringsHelper::require_puppet_strings] Unable to load puppet-strings gem: #{e}")
+        PuppetLanguageServerSidecar.log_message(:error, "[PuppetStringsHelper::require_puppet_strings] Unable to load openvox-strings gem: #{e}")
         @puppet_strings_loaded = false
       end
       @puppet_strings_loaded
@@ -29,7 +29,7 @@ module PuppetLanguageServerSidecar
 
     def self.setup_yard!
       unless @yard_setup # rubocop:disable Style/GuardClause
-        ::PuppetStrings::Yard.setup!
+        ::OpenvoxStrings::Yard.setup!
         @yard_setup = true
       end
     end
@@ -100,7 +100,7 @@ module PuppetLanguageServerSidecar
 
     def populate_from_yard_registry!(puppet_path)
       # Extract all of the information
-      # Ref - https://github.com/puppetlabs/puppet-strings/blob/87a8e10f45bfeb7b6b8e766324bfb126de59f791/lib/puppet-strings/json.rb#L10-L16
+      # Ref - https://github.com/voxpupuli/openvox-strings/blob/v7.1.0/lib/openvox-strings/json.rb
       populate_classes_from_yard_registry!
       populate_data_types_from_yard_registry!
       populate_functions_from_yard_registry!
@@ -314,7 +314,7 @@ module PuppetLanguageServerSidecar
       sig.parameters.each do |param|
         name = param.name.dup # Don't want to modify the original object
         # Munge the parameter name to what it appears in the signature key
-        # Ref - https://github.com/puppetlabs/puppet-strings/blob/2987558bb3170bc37e6077aab1b60efb17161eff/lib/puppet-strings/yard/handlers/ruby/function_handler.rb#L293-L317
+        # Ref - https://github.com/voxpupuli/openvox-strings/blob/v7.1.0/lib/openvox-strings/yard/handlers/ruby/function_handler.rb
         if name.start_with?('*', '&')
           name.insert(1, '$')
         else

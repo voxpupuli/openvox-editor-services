@@ -71,7 +71,11 @@ describe 'puppet-languageserver' do
 
       # Expect the response to have the required parameters
       expect(response).to match /"puppetVersion":/
+      expect(response).to match /"runtimeName":"openvox"/
+      expect(response).to match /"runtimeGemVersion":/
       expect(response).to match /"facterVersion":/
+      expect(response).to match /"factRuntimeName":"openfact"/
+      expect(response).to match /"factRuntimeGemVersion":/
       expect(response).to match /"functionsLoaded":/
       expect(response).to match /"typesLoaded":/
       expect(response).to match /"factsLoaded":/
@@ -111,7 +115,11 @@ describe 'puppet-languageserver' do
 
       # Expect the response to have the required parameters
       expect(response).to match /"puppetVersion":/
+      expect(response).to match /"runtimeName":"openvox"/
+      expect(response).to match /"runtimeGemVersion":/
       expect(response).to match /"facterVersion":/
+      expect(response).to match /"factRuntimeName":"openfact"/
+      expect(response).to match /"factRuntimeGemVersion":/
       expect(response).to match /"functionsLoaded":/
       expect(response).to match /"typesLoaded":/
       expect(response).to match /"factsLoaded":/

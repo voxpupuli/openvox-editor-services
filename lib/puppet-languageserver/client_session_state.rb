@@ -109,9 +109,9 @@ module PuppetLanguageServer
 
       bolt_static_data.each_list do |k, v|
         if v.nil?
-          PuppetLanguageServer.log_message(:debug, "Static bolt data returned no #{k}")
+          PuppetLanguageServer.log_message(:debug, "Static OpenBolt data returned no #{k}")
         else
-          PuppetLanguageServer.log_message(:debug, "Static bolt data returned #{v.count} #{k}")
+          PuppetLanguageServer.log_message(:debug, "Static OpenBolt data returned #{v.count} #{k}")
         end
       end
     end

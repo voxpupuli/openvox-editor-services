@@ -35,7 +35,7 @@ module PuppetLanguageServer
         connection = connection_from_connection_id(job_object.connection_id)
         raise "Connection is not available for connection id #{job_object.connection_id}" if connection.nil?
 
-        sidecar_path = File.expand_path(File.join(__dir__, '..', '..', '..', 'puppet-languageserver-sidecar'))
+        sidecar_path = File.expand_path(File.join(__dir__, '..', '..', '..', 'openvox-languageserver-sidecar'))
         args = ['--action', job_object.action].concat(job_object.additional_args).concat(sidecar_args_from_connection(connection))
         cmd = ['ruby', sidecar_path].concat(args)
         PuppetLanguageServer.log_message(:debug, "SidecarQueue Thread: Running sidecar #{cmd}")
@@ -195,7 +195,7 @@ module PuppetLanguageServer
 
         result = []
         result << '--no-cache' if options[:disable_sidecar_cache]
-        result << "--puppet-version=#{Puppet.version}"
+        result << "--openvox-version=#{Puppet.version}"
         result << "--feature-flags=#{options[:flags].join(',')}" if options[:flags] && !options[:flags].empty?
         result << "--puppet-settings=#{options[:puppet_settings].join(',')}" if options[:puppet_settings] && !options[:puppet_settings].empty?
         result
