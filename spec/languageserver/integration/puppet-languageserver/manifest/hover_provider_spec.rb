@@ -137,7 +137,7 @@ EOT
         let(:char_num) { 3 }
 
         it 'should return class description' do
-          pending('Not implemented')
+          skip('Not implemented')
           result = subject.resolve(session_state, content, line_num, char_num)
 
           expect(result.contents).to start_with("**class** keyword\n")
@@ -149,7 +149,7 @@ EOT
         let(:char_num) { 14 }
 
         it 'should return class description' do
-          pending('Not implemented')
+          skip('Not implemented')
           result = subject.resolve(session_state, content, line_num, char_num)
 
           expect(result.contents).to start_with("**class** keyword\n")
@@ -161,7 +161,7 @@ EOT
         let(:char_num) { 27 }
 
         it 'should return type information' do
-          pending('Not implemented')
+          skip('Not implemented')
           result = subject.resolve(session_state, content, line_num, char_num)
 
           expect(result.contents).to start_with("**String** keyword\n")
@@ -173,7 +173,7 @@ EOT
         let(:char_num) { 36 }
 
         it 'should not return any information' do
-          pending('Not implemented')
+          skip('Not implemented')
           result = subject.resolve(session_state, content, line_num, char_num)
 
           expect(result.contents).to eq('')
@@ -185,7 +185,7 @@ EOT
         let(:char_num) { 44 }
 
         it 'should not return any information' do
-          pending('Not implemented')
+          skip('Not implemented')
           result = subject.resolve(session_state, content, line_num, char_num)
 
           expect(result.contents).to eq('')
@@ -446,7 +446,7 @@ class firewall {
         let(:line_num) { 2 }
         let(:char_num) { 6 }
         it 'should not complete to service resource' do
-          pending("(PUP-7668) parser is assigning an incorrect offset")
+          skip("(PUP-7668) parser is assigning an incorrect offset")
 
           result = subject.resolve(session_state, content, line_num, char_num)
           expect(result.contents).not_to start_with("**service** Resource\n")

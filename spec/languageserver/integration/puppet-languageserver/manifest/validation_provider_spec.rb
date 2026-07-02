@@ -6,7 +6,7 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
 
   describe '#fix_validate_errors' do
     describe "Given an incomplete manifest which has syntax errors but no lint errors" do
-      let(:manifest) { 'user { \'Bob\'' }
+      let(:manifest) { "user { 'Bob'\n" }
 
       it "should return no changes" do
         problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
@@ -19,14 +19,14 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
       let(:manifest) do
         <<~PUPPET
           user { "Bob":
-            ensure => 'present'
+            ensure => 'present',
           }
         PUPPET
       end
       let(:new_manifest) do
         <<~PUPPET
           user { 'Bob':
-            ensure => 'present'
+            ensure => 'present',
           }
         PUPPET
       end
@@ -44,7 +44,7 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
           // bad comment
           user { "Bob":
             name => 'username',
-            ensure => 'present'
+            ensure => 'present',
           }
         PUPPET
       end
@@ -52,15 +52,15 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
         <<~PUPPET
           # bad comment
           user { 'Bob':
+            ensure => 'present',
             name   => 'username',
-            ensure => 'present'
           }
         PUPPET
       end
 
       it "should return changes" do
         problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
-        expect(problems_fixed).to eq(3)
+        expect(problems_fixed).to eq(4)
         expect(new_content).to eq(new_manifest)
       end
     end
@@ -70,8 +70,8 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
       let(:manifest) do
         <<~PUPPET
           user { 'Bob':
+            ensure => 'present',
             name   => 'name',
-            ensure => 'present'
           }
         PUPPET
       end
@@ -88,7 +88,7 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
       let(:new_manifest) { "user { 'Bob':\r\nensure  => 'present'\r\n}" }
 
       it "should preserve CRLF" do
-        pending('Release of https://github.com/rodjek/puppet-lint/commit/2a850ab3fd3694a4dd0c4d2f22a1e60b9ca0a495')
+        skip('Release of https://github.com/rodjek/puppet-lint/commit/2a850ab3fd3694a4dd0c4d2f22a1e60b9ca0a495')
         problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
         expect(problems_fixed).to eq(1)
         expect(new_content).to eq(new_manifest)
@@ -99,7 +99,7 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
       let(:manifest) do
         <<~PUPPET
           user { "Bob": # lint:ignore:double_quoted_strings
-            ensure => 'present'
+            ensure => 'present',
           }
         PUPPET
       end
@@ -164,7 +164,7 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
     end
 
     describe "Given a complete manifest with no validation errors" do
-      let(:manifest) { "user { 'Bob': ensure => 'present' }" }
+      let(:manifest) { "user { 'Bob': ensure => 'present' }\n" }
 
       it "should return an empty array" do
         expect(subject.validate(session_state, manifest)).to eq([])
@@ -243,7 +243,16 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
     end
 
     describe "Given a complete manifest with validation errors" do
-      let(:manifest) { "class bad_formatting {\n  user { 'username':\n    ensure => absent,\n    auth_membership => 'false',\n  }\n} " }
+      let(:manifest) do
+        <<~PUPPET
+          class bad_formatting {
+            user { 'username':
+              ensure          => absent,
+              auth_membership => 'false',
+            }
+          }
+        PUPPET
+      end
 
       it "should return errors and warnings even after fix_validate_errors" do
         fixes = subject.fix_validate_errors(session_state, manifest)

@@ -20,6 +20,7 @@ group :development do
   gem 'rubocop-rspec_rails', '~> 2.31.0', :require => false
   gem 'simplecov-console',                :require => false
   gem 'simplecov',                        :require => false
+  gem 'syslog', '~> 0.4',                 :require => false unless Gem.win_platform?
   gem 'voxpupuli-puppet-lint-plugins', '= 7.0.0', :require => false
   gem 'yard', '~> 0.9.28',                :require => false
   gem "rubocop-performance", '~> 1.24.0', :require => false

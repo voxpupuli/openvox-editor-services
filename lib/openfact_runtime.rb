@@ -8,6 +8,7 @@ module OpenFactRuntime
 
   def self.activate!
     gem(GEM_NAME)
+    require 'syslog' unless Gem.win_platform?
     require 'facter'
     @runtime_specification = Gem.loaded_specs[GEM_NAME]
     raise Gem::LoadError, "The loaded fact implementation is not the #{GEM_NAME} gem" if @runtime_specification.nil?

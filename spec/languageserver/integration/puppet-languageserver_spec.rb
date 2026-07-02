@@ -1,14 +1,19 @@
 require 'spec_helper'
 require 'open3'
+require 'rbconfig'
 require 'socket'
 
 SERVER_TCP_PORT = 8081
 SERVER_HOST = '127.0.0.1'.freeze
 
 def start_tcp_server(start_options = ['--timeout=5'])
-  cmd = "ruby puppet-languageserver #{start_options.join(' ')} --port=#{SERVER_TCP_PORT} --ip=0.0.0.0"
-
-  stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
+  stdin, stdout, stderr, wait_thr = Open3.popen3(
+    RbConfig.ruby,
+    'puppet-languageserver',
+    *start_options,
+    "--port=#{SERVER_TCP_PORT}",
+    '--ip=0.0.0.0'
+  )
   # Wait for the Language Server to indicate it started
   line = nil
   begin
@@ -21,9 +26,12 @@ def start_tcp_server(start_options = ['--timeout=5'])
 end
 
 def start_stdio_server(start_options = ['--timeout=5'])
-  cmd = "ruby puppet-languageserver #{start_options.join(' ')} --stdio"
-
-  stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
+  stdin, stdout, stderr, wait_thr = Open3.popen3(
+    RbConfig.ruby,
+    'puppet-languageserver',
+    *start_options,
+    '--stdio'
+  )
   stderr.close
   return stdin, stdout, wait_thr
 end
