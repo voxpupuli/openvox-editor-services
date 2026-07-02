@@ -1,0 +1,103 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  OPENVOX_GEM_VERSION: "~> 8.0"
+
+jobs:
+  lint:
+    name: RuboCop
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Run RuboCop
+        run: bundle exec rake rubocop
+
+  specs:
+    name: ${{ matrix.task.name }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        task:
+          - name: Language Server specs
+            rake_task: test_languageserver
+          - name: Language Server Sidecar specs
+            rake_task: test_languageserver_sidecar
+          - name: Debug Server specs
+            rake_task: test_debugserver
+          - name: Language Server acceptance
+            rake_task: acceptance_languageserver
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Vendor runtime gems
+        run: bundle exec rake gem_revendor
+
+      - name: Run ${{ matrix.task.name }}
+        run: bundle exec rake ${{ matrix.task.rake_task }}
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Vendor runtime gems
+        run: bundle exec rake gem_revendor
+
+      - name: Run coverage specs
+        run: bundle exec rake test:coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          if-no-files-found: ignore
+          retention-days: 7

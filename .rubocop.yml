@@ -1,6 +1,6 @@
 inherit_from: .rubocop_todo.yml
 
-plugins: 
+plugins:
   - rubocop-rspec
   - rubocop-rspec_rails
   - rubocop-performance
@@ -19,7 +19,7 @@ AllCops:
     - Rakefile
   NewCops: enable
   SuggestExtensions: false
-  TargetRubyVersion: '3.1'
+  TargetRubyVersion: '3.4'
 # Disabled
 Style/ClassAndModuleChildren:
   Enabled: false
