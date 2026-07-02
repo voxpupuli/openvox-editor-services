@@ -6,7 +6,7 @@ $LOAD_PATH.unshift(File.join(__dir__, 'lib'))
 
 # Add the vendored gems into the load path
 $LOAD_PATH.unshift(File.join(__dir__, 'vendor', 'puppet-lint', 'lib'))
-Dir[File.join(__dir__, 'vendor', 'puppet-lint-*', 'lib')].each { |path| $LOAD_PATH.unshift(path) }
+Dir[File.join(__dir__, 'vendor', 'puppet-lint-*', 'lib')].sort.each { |path| $LOAD_PATH.unshift(path) }
 $LOAD_PATH.unshift(File.join(__dir__, 'vendor', 'molinillo', 'lib'))
 $LOAD_PATH.unshift(File.join(__dir__, 'vendor', 'puppetfile-resolver', 'lib'))
 

@@ -23,3 +23,10 @@ AllCops:
 # Disabled
 Style/ClassAndModuleChildren:
   Enabled: false
+
+# The vendored puppet-lint paths must be loaded deterministically.
+Style/RedundantSort:
+  Exclude:
+    - 'lib/puppet-languageserver/puppet_lint.rb'
+    - 'openvox-languageserver'
+    - 'puppet-languageserver'

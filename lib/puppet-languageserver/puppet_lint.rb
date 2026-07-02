@@ -6,4 +6,4 @@ require 'puppet-lint'
 # packaged language server uses vendored source trees instead, so load their
 # checks explicitly.
 vendored_plugins = File.expand_path('../../vendor/puppet-lint-*/lib/puppet-lint/plugins/**/*.rb', __dir__)
-Dir[vendored_plugins].each { |plugin| require plugin }
+Dir[vendored_plugins].sort.each { |plugin| require plugin }
