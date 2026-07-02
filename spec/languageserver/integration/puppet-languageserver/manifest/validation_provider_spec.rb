@@ -16,16 +16,20 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
     end
 
     describe "Given a complete manifest which has a single fixable lint errors" do
-      let(:manifest) { "
-        user { \"Bob\":
-          ensure => 'present'
-        }"
-      }
-      let(:new_manifest) { "
-        user { 'Bob':
-          ensure => 'present'
-        }"
-      }
+      let(:manifest) do
+        <<~PUPPET
+          user { "Bob":
+            ensure => 'present'
+          }
+        PUPPET
+      end
+      let(:new_manifest) do
+        <<~PUPPET
+          user { 'Bob':
+            ensure => 'present'
+          }
+        PUPPET
+      end
 
       it "should return changes" do
         problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
@@ -35,20 +39,24 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
     end
 
     describe "Given a complete manifest which has multiple fixable lint errors" do
-      let(:manifest) { "
-        // bad comment
-        user { \"Bob\":
-          name => 'username',
-          ensure => 'present'
-        }"
-      }
-      let(:new_manifest) { "
-        # bad comment
-        user { 'Bob':
-          name   => 'username',
-          ensure => 'present'
-        }"
-      }
+      let(:manifest) do
+        <<~PUPPET
+          // bad comment
+          user { "Bob":
+            name => 'username',
+            ensure => 'present'
+          }
+        PUPPET
+      end
+      let(:new_manifest) do
+        <<~PUPPET
+          # bad comment
+          user { 'Bob':
+            name   => 'username',
+            ensure => 'present'
+          }
+        PUPPET
+      end
 
       it "should return changes" do
         problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
@@ -59,12 +67,14 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
 
 
     describe "Given a complete manifest which has unfixable lint errors" do
-      let(:manifest) { "
-        user { 'Bob':
-          name   => 'name',
-          ensure => 'present'
-        }"
-      }
+      let(:manifest) do
+        <<~PUPPET
+          user { 'Bob':
+            name   => 'name',
+            ensure => 'present'
+          }
+        PUPPET
+      end
 
       it "should return no changes" do
         problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
@@ -86,11 +96,13 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
     end
 
     describe "Given a complete manifest which has disabed fixable lint errors" do
-      let(:manifest) { "
-        user { \"Bob\": # lint:ignore:double_quoted_strings
-          ensure  => 'present'
-        }"
-      }
+      let(:manifest) do
+        <<~PUPPET
+          user { "Bob": # lint:ignore:double_quoted_strings
+            ensure => 'present'
+          }
+        PUPPET
+      end
 
       it "should return no changes" do
         problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
@@ -138,12 +150,14 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
     end
 
     context 'Given a Puppet Plan', :if => Puppet.tasks_supported? do
-      let(:manifest) { <<-EOT
-        plan mymodule::my_plan(
-        ) {
-        }
-        EOT
-      }
+      let(:manifest) do
+        <<~PUPPET
+          plan mymodule::my_plan(
+          ) {
+          }
+        PUPPET
+      end
+
       it "should not raise an error" do
         result = subject.validate(session_state, manifest, { :tasks_mode => true})
       end
@@ -167,15 +181,17 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
         lint_error_crlf = subject.validate(session_state, manifest_crlf)
         expect(lint_error_crlf.to_json).to eq(lint_error_lf.to_json)
       end
-   end
+    end
 
     describe "Given a complete manifest with a single linting error" do
-      let(:manifest) { "
-        user { 'Bob':
-          ensure  => 'present',
-          comment => '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890',
-        }"
-      }
+      let(:manifest) do
+        <<~PUPPET
+          user { 'Bob':
+            ensure  => 'present',
+            comment => '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890',
+          }
+        PUPPET
+      end
 
       it "should return an array with one entry" do
         expect(subject.validate(session_state, manifest).count).to eq(1)
@@ -193,12 +209,14 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
 
       context "but disabled" do
         context "on a single line" do
-          let(:manifest) { "
-            user { 'Bob':
-              ensure  => 'present',
-              comment => '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890'   # lint:ignore:140chars
-            }"
-          }
+          let(:manifest) do
+            <<~PUPPET
+              user { 'Bob':
+                ensure  => 'present',
+                comment => '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890'   # lint:ignore:140chars
+              }
+            PUPPET
+          end
 
           it "should return an empty array" do
             expect(subject.validate(session_state, manifest)).to eq([])
@@ -206,14 +224,16 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
         end
 
         context "in a linting block" do
-          let(:manifest) { "
-            user { 'Bob':
-              ensure  => 'present',
-              # lint:ignore:140chars
-              comment => '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890',
-              # lint:endignore
-            }"
-          }
+          let(:manifest) do
+            <<~PUPPET
+              user { 'Bob':
+                ensure  => 'present',
+                # lint:ignore:140chars
+                comment => '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890',
+                # lint:endignore
+              }
+            PUPPET
+          end
 
           it "should return an empty array" do
             expect(subject.validate(session_state, manifest)).to eq([])
