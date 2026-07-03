@@ -66,7 +66,7 @@ module OpenVoxAgentRubygems
 
   def self.user_ruby_path?(path)
     normalized = normalized_path(path)
-    home = ENV['HOME']
+    home = Dir.home rescue nil
 
     return false if home.nil? || home.empty?
 
