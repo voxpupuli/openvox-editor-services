@@ -215,8 +215,8 @@ describe 'End to End Testing' do
       @client.send_data(@client.formatting_request(@client.next_seq_id, manifest_uri))
       expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
       result = @client.data_from_request_seq_id(@client.current_seq_id)
-      # Expect an error as we don't support it
-      expect(result['error']['code']).to eq(PuppetEditorServices::Protocol::JsonRPC::CODE_METHOD_NOT_FOUND)
+      # Expect document-wide hashrocket alignment edits
+      expect(result['result']).not_to be_empty
 
       # Range Formatting
       @client.clear_messages!

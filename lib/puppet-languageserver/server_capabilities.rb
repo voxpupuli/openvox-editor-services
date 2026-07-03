@@ -19,6 +19,7 @@ module PuppetLanguageServer
           'triggerCharacters' => ['>', '$', '[', '=']
         },
         'definitionProvider' => true,
+        'documentFormattingProvider' => true,
         'documentSymbolProvider' => true,
         'workspaceSymbolProvider' => true,
         'signatureHelpProvider' => {
