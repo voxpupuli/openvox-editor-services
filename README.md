@@ -1,20 +1,44 @@
 # OpenVox Editor Services
 
-A Ruby implementation of a [Language Server](https://github.com/Microsoft/language-server-protocol) and [Debug Server](https://github.com/microsoft/debug-adapter-protocol) for OpenVox. The internal `Puppet` Ruby namespace and `puppet/*` protocol methods are retained for compatibility.
+A Ruby implementation of a [Language Server](https://github.com/Microsoft/language-server-protocol) and [Debug Server](https://github.com/microsoft/debug-adapter-protocol) for OpenVox.
+The internal `Puppet` Ruby namespace and `puppet/*` protocol methods are retained for compatibility.
+
+- [OpenVox Editor Services](#openvox-editor-services)
+  - [Requirements](#requirements)
+  - [Setting up editor services for development](#setting-up-editor-services-for-development)
+  - [Language Server](#language-server)
+    - [How to run the Language Server for Development](#how-to-run-the-language-server-for-development)
+    - [How to run the Language Server in Production](#how-to-run-the-language-server-in-production)
+    - [Command line arguments](#command-line-arguments)
+  - [Language Server Sidecar](#language-server-sidecar)
+    - [How to run the Language Server Sidecar for Development](#how-to-run-the-language-server-sidecar-for-development)
+    - [Example usage](#example-usage)
+      - [Confirm that the Sidecar loads correctly](#confirm-that-the-sidecar-loads-correctly)
+      - [Output all default Puppet Types](#output-all-default-puppet-types)
+      - [Output all default Puppet Functions with a different puppet configuration, and debug information](#output-all-default-puppet-functions-with-a-different-puppet-configuration-and-debug-information)
+      - [Output all Puppet Classes in a workspace directory](#output-all-puppet-classes-in-a-workspace-directory)
+    - [Command line arguments for the Language Server Sidecar](#command-line-arguments-for-the-language-server-sidecar)
+  - [Debug Server](#debug-server)
+    - [How to run the Debug Server for Development](#how-to-run-the-debug-server-for-development)
+    - [How to run the Debug Server for Production](#how-to-run-the-debug-server-for-production)
+    - [Command line arguments for the Debug Server](#command-line-arguments-for-the-debug-server)
+  - [License](#license)
+  - [Other information](#other-information)
+    - [Reporting bugs](#reporting-bugs)
+  - [Development](#development)
+  - [Why are there vendored gems and why only native ruby](#why-are-there-vendored-gems-and-why-only-native-ruby)
+
 
 ## Requirements
 
-* OpenVox 8 or above
-
-* Ruby 3.1 or above
+- OpenVox 8 or above
+- Ruby 3.1 or above
 
 ## Setting up editor services for development
 
-* Ensure a modern ruby is installed (3.1+)
-
-  The editor services support OpenVox 8.0.0 and above.
-
-* Clone this repository
+- Ensure a modern ruby is installed (3.4+)
+- The editor services support OpenVox 8.0.0 and above.
+- Clone this repository
 
 ```bash
 > git clone https://github.com/voxpupuli/openvox-editor-services.git
@@ -22,7 +46,7 @@ A Ruby implementation of a [Language Server](https://github.com/Microsoft/langua
 > cd openvox-editor-services
 ```
 
-* Bundle the development gems
+- Bundle the development gems
 
 ```bash
 > bundle install
@@ -30,7 +54,7 @@ A Ruby implementation of a [Language Server](https://github.com/Microsoft/langua
   ... < lots of text >
 ```
 
-* Installed vendored gems
+- Installed vendored gems
 
 ```bash
 > bundle exec rake gem_revendor
@@ -38,9 +62,9 @@ A Ruby implementation of a [Language Server](https://github.com/Microsoft/langua
   ... < lots of text >
 ```
 
-# Language Server
+## Language Server
 
-## How to run the Language Server for Development
+### How to run the Language Server for Development
 
 By default the language server will stop if no connection is made within 10 seconds and will also stop after a client disconnects.  Adding `--debug=stdout` will log messages to the console
 
@@ -107,14 +131,14 @@ D, [2018-12-05T15:20:56.374333 #29752] DEBUG -- : TCPSRV: Started listening on l
 ...
 ```
 
-## How to run the Language Server in Production
+### How to run the Language Server in Production
 
-* Ensure that Puppet Agent is installed
-  * [Linux](https://puppet.com/docs/puppet/latest/install_agents.html#install_nix_agents)
-  * [Windows](https://puppet.com/docs/puppet/latest/install_agents.html#install_windows_agents)
-  * [macOS](https://puppet.com/docs/puppet/latest/install_agents.html#install_mac_agents)
+- Ensure that Puppet Agent is installed
+  - [Linux](https://puppet.com/docs/puppet/latest/install_agents.html#install_nix_agents)
+  - [Windows](https://puppet.com/docs/puppet/latest/install_agents.html#install_windows_agents)
+  - [macOS](https://puppet.com/docs/puppet/latest/install_agents.html#install_mac_agents)
 
-* Run the `puppet-languageserver` with ruby
+- Run the `puppet-languageserver` with ruby
 
 > On Windows you need to run ruby with the `Puppet Command Prompt` which can be found in the Start Menu.  This enables the Puppet Agent ruby environment.
 
@@ -133,7 +157,7 @@ Note that the Language Server will use TCP as the default transport on `localhos
 
 To change the protocol to STDIO, that is using STDOUT and STDIN, use the `--stdio` argument.
 
-## Command line arguments
+### Command line arguments
 
 ```bash
 Usage: puppet-languageserver.rb [options]
@@ -155,15 +179,18 @@ Usage: puppet-languageserver.rb [options]
     -v, --version                    Prints the Langauge Server version
 ```
 
-# Language Server Sidecar
+## Language Server Sidecar
 
-## How to run the Language Server for Development
+### How to run the Language Server Sidecar for Development
 
-The Language Server Sidecar is a process used by the Language Server to get information about Puppet's environment, for example, all available functions, classes, and custom types. This tool is typically only run by the Language Server itself, but it can be used to diagnose issues.
+The Language Server Sidecar is a process used by the Language Server to get information about Puppet's environment, for example, all available functions, classes, and custom types.
+This tool is typically only run by the Language Server itself, but it can be used to diagnose issues.
 
-The sidecar is told to perform an action (using the `action`) parameter and then, by default, outputs the JSON encoded result to STDOUT.  This can be changed to a text file using the `--output=PATH` argument.
+The sidecar is told to perform an action (using the `action`) parameter and then, by default, outputs the JSON encoded result to STDOUT.
+This can be changed to a text file using the `--output=PATH` argument.
 
-Note that using the `--debug=STDOUT` option without directing the output to a text file will generate output on STDOUT which cannot be deserialized correctly. Typically this only used by a developer to inspect what the Sidecar is doing.
+Note that using the `--debug=STDOUT` option without directing the output to a text file will generate output on STDOUT which cannot be deserialized correctly.
+Typically this only used by a developer to inspect what the Sidecar is doing.
 
 ### Example usage
 
@@ -203,7 +230,7 @@ D, [2018-12-05T15:42:56.752804 #51864] DEBUG -- : [PuppetLanguageServerSidecar::
 [{"key":"sqlserver::config","calling_source":"C:/Source/puppetlabs-sqlserver/manifests/config.pp","source":"C:/Source/puppetlabs-sqlserver/manifests/config.pp","line":25,"ch...
 ```
 
-## Command line arguments
+### Command line arguments for the Language Server Sidecar
 
 ```bash
 Usage: puppet-languageserver-sidecar.rb [options]
@@ -219,11 +246,12 @@ Usage: puppet-languageserver-sidecar.rb [options]
     -v, --version                    Prints the Langauge Server version
 ```
 
-# Debug Server
+## Debug Server
 
-## How to run the Debug Server for Development
+### How to run the Debug Server for Development
 
-By default the debug server will stop if no connection is made within 10 seconds and will also stop after a client disconnects.  Adding `--debug=stdout` will log messages to the console
+By default the debug server will stop if no connection is made within 10 seconds and will also stop after a client disconnects.
+Adding `--debug=stdout` will log messages to the console
 
 ```bash
 > bundle exec ruby ./puppet-debugserver --debug=stdout
@@ -256,16 +284,13 @@ D, [2018-04-17T14:21:10.546834 #12424] DEBUG -- : TCPSRV: Started listening on 1
 ...
 ```
 
-## How to run the Debug Server for Production
+### How to run the Debug Server for Production
 
-* Ensure that Puppet Agent is installed
-  * [Linux](https://puppet.com/docs/puppet/latest/install_agents.html#install_nix_agents)
-  * [Windows](https://puppet.com/docs/puppet/latest/install_agents.html#install_windows_agents)
-  * [macOS](https://puppet.com/docs/puppet/latest/install_agents.html#install_mac_agents)
+- Ensure that OpenVox Agent is installed
+- Run the `puppet-debugserver` with ruby
 
-* Run the `puppet-debugserver` with ruby
-
-> On Windows you need to run ruby with the `Puppet Command Prompt` which can be found in the Start Menu.  This enables the Puppet Agent ruby environment.
+On Windows you need to run ruby with the `OpenVox Command Prompt` which can be found in the Start Menu.
+This enables the OpenVox Agent ruby environment.
 
 ```bash
 > ruby puppet-debugserver
@@ -274,7 +299,7 @@ DEBUG SERVER RUNNING 127.0.0.1:8082
 
 Note the debug server will stop after 10 seconds if no client connection is made.
 
-## Command line arguments
+### Command line arguments for the Debug Server
 
 ```bash
 Usage: puppet-debugserver.rb [options]
@@ -290,16 +315,23 @@ Usage: puppet-debugserver.rb [options]
 
 This codebase is licensed under Apache 2.0. However, the open source dependencies included in this codebase might be subject to other software licenses such as AGPL, GPL2.0, and MIT.
 
-# Other information
+## Other information
 
-## Reporting bugs
+### Reporting bugs
 
-If you find a bug in puppet-editor-services or its results, please create an issue in the [repo issues tracker](https://github.com/puppetlabs/puppet-editor-services/issues). Bonus points will be awarded if you also include a patch that fixes the issue.
+If you find a bug in puppet-editor-services or its results, please create an issue in the [repo issues tracker](https://github.com/voxpupulo/openvox-editor-services/issues).
+Bonus points will be awarded if you also include a patch that fixes the issue.
 
 ## Development
 
-If you run into an issue with this tool or would like to request a feature you can raise a PR with your suggested changes. Alternatively, you can raise a Github issue with a feature request or to report any bugs. Every other Tuesday the DevX team holds office hours in the Puppet Community Slack, where you can ask questions about this and any other supported tools. This session runs at 15:00 (GMT) for about an hour.
+If you run into an issue with this tool or would like to request a feature you can raise a PR with your suggested changes.
+Alternatively, you can raise a Github issue with a feature request or to report any bugs.
+Every other Tuesday the DevX team holds office hours in the Puppet Community Slack, where you can ask questions about this and any other supported tools.
+This session runs at 15:00 (GMT) for about an hour.
 
 ## Why are there vendored gems and why only native ruby
 
-When used by editors this language server will be running using the Ruby runtime provided by Puppet Agent.  That means no native extensions and no bundler.  Also, only the gems provided by Puppet Agent would be available by default.  To work around this limitation all runtime dependencies should be re-vendored and then the load path modified appropriately.
+When used by editors this language server will be running using the Ruby runtime provided by Puppet Agent.
+That means no native extensions and no bundler.
+Also, only the gems provided by Puppet Agent would be available by default.
+To work around this limitation all runtime dependencies should be re-vendored and then the load path modified appropriately.
