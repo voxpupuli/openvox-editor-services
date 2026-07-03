@@ -1,17 +1,16 @@
-## Node LSP introspector
+# Node LSP introspector
 
 Downloads the associated LSP node modules and generates the Ruby
 LSP types and enumerations for the Puppet Language, and Debug, Server
 
-
-### Prerequisites
+## Prerequisites
 
 * NodeJS install (10.0+)
 
-
 ## Generate Types
 
-1. Modify the versions of `vscode-languageserver-protocol` and `vscode-languageserver-types` in the package.json file located at `/tools/lsp_introspect/package.json`.  Note that dependencies must be specified explicitly, do not depend on npm to do that for you.
+1. Modify the versions of `vscode-languageserver-protocol` and `vscode-languageserver-types` in `/tools/lsp_introspect/package.json`.
+   Note that dependencies must be specified explicitly, do not depend on npm to do that for you.
 
 2. Run `npm install` to download the required node modules
 

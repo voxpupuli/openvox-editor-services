@@ -28,7 +28,6 @@ The internal `Puppet` Ruby namespace and `puppet/*` protocol methods are retaine
   - [Development](#development)
   - [Why are there vendored gems and why only native ruby](#why-are-there-vendored-gems-and-why-only-native-ruby)
 
-
 ## Requirements
 
 - OpenVox 8 or above
@@ -149,7 +148,9 @@ LANGUAGE SERVER RUNNING 127.0.0.1:55086
 
 > Note the language server will stop after 10 seconds if no client connection is made.
 
-Note that the Language Server will use TCP as the default transport on `localhost` at a random port.  The IP Address and Port can be changed using the `--ip` and `--port` arguments respectively.  For example to listen on all interfaces on port 9000;
+Note that the Language Server will use TCP as the default transport on `localhost` at a random port.
+The IP Address and Port can be changed using the `--ip` and `--port` arguments respectively.
+For example to listen on all interfaces on port 9000;
 
 ```bash
 > ruby ./puppet-languageserver --ip=0.0.0.0 --port=9000
@@ -234,7 +235,8 @@ D, [2018-12-05T15:42:56.752804 #51864] DEBUG -- : [PuppetLanguageServerSidecar::
 
 ```bash
 Usage: puppet-languageserver-sidecar.rb [options]
-    -a, --action=NAME                The action for the sidecar to take. Expected ["noop", "default_classes", "default_functions", "default_types", "node_graph", "resource_list", "workspace_classes", "workspace_functions", "workspace_types"]
+    -a, --action=NAME                The action for the sidecar to take. Expected ["noop", "default_classes", "default_functions",
+                                      "default_types", "node_graph", "resource_list", "workspace_classes", "workspace_functions", "workspace_types"]
     -c, --action-parameters=JSON     JSON Encoded string containing the parameters for the sidecar action
     -w, --local-workspace=PATH       The workspace or file path that will be used to provide module-specific functionality. Default is no workspace path
     -o, --output=PATH                The file to save the output from the sidecar. Default is output to STDOUT
