@@ -32,7 +32,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@0dafeac902942906541bc140009cdbf32665b601 # v1.315.0
         with:
-          ruby-version: "3.2"
+          ruby-version: "3.4"
           bundler-cache: true
 
       - name: Run RuboCop
@@ -65,7 +65,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@0dafeac902942906541bc140009cdbf32665b601 # v1.315.0
         with:
-          ruby-version: "3.2"
+          ruby-version: "3.4"
           bundler-cache: true
 
       - name: Vendor runtime gems
@@ -85,7 +85,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@0dafeac902942906541bc140009cdbf32665b601 # v1.315.0
         with:
-          ruby-version: "3.2"
+          ruby-version: "3.4"
           bundler-cache: true
 
       - name: Vendor runtime gems
