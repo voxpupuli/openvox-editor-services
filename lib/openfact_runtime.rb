@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'openvox_agent_rubygems'
+
 # Activates the OpenFact gem while retaining its Facter-compatible Ruby API.
 # OpenFact intentionally provides `require 'facter'`, the `Facter` namespace,
 # and the `facter` executable.
@@ -7,7 +9,9 @@ module OpenFactRuntime
   GEM_NAME = 'openfact'
 
   def self.activate!
+    OpenVoxAgentRubygems.activate!
     gem(GEM_NAME)
+    OpenVoxAgentRubygems.restore_paths!
     require 'syslog' unless Gem.win_platform?
     require 'facter'
     @runtime_specification = Gem.loaded_specs[GEM_NAME]

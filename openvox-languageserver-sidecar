@@ -7,6 +7,8 @@ $LOAD_PATH.unshift(File.join(__dir__, 'vendor', 'openvox-strings', 'lib'))
 $LOAD_PATH.unshift(File.join(__dir__, 'vendor', 'rgen', 'lib'))
 $LOAD_PATH.unshift(File.join(__dir__, 'vendor', 'yard', 'lib'))
 
+require 'openvox_agent_rubygems'
+OpenVoxAgentRubygems.activate!
 require 'puppet_languageserver_sidecar'
 
 options = PuppetLanguageServerSidecar::CommandLineParser.parse(ARGV)

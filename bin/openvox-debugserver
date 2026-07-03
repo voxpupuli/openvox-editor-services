@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+root_dir = File.directory?(File.join(__dir__, 'lib')) ? __dir__ : File.expand_path('..', __dir__)
+$LOAD_PATH.unshift(File.join(root_dir, 'lib'))
+
+require 'openvox_agent_rubygems'
+OpenVoxAgentRubygems.activate!
 require 'puppet_debugserver'
 
 options = PuppetDebugServer::CommandLineParser.parse(ARGV)
