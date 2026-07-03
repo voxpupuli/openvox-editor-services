@@ -243,6 +243,25 @@ module PuppetLanguageServer
       nil
     end
 
+    def request_textdocument_formatting(_, json_rpc_message)
+      file_uri = json_rpc_message.params['textDocument']['uri']
+      content  = documents.document_content(file_uri)
+
+      case documents.document_type(file_uri)
+      when :manifest
+        PuppetLanguageServer::Manifest::DocumentFormattingProvider.instance.format(
+          content,
+          json_rpc_message.params['options'],
+          language_client.format_on_type_filesize_limit
+        )
+      else
+        raise "Unable to format document on #{file_uri}"
+      end
+    rescue StandardError => e
+      PuppetLanguageServer.log_message(:error, "(textDocument/formatting) #{e}")
+      nil
+    end
+
     def request_textdocument_ontypeformatting(_, json_rpc_message)
       return nil unless language_client.format_on_type
 

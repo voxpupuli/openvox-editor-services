@@ -1,5 +1,7 @@
 require 'spec_helper'
 require 'puppet_editor_services/protocol/json_rpc_messages'
+require 'puppet-languageserver/manifest/document_formatting_provider'
+require 'puppet-languageserver/manifest/folding_provider'
 
 describe 'PuppetLanguageServer::MessageHandler' do
   MANIFEST_FILENAME = 'file:///something.pp'
@@ -125,6 +127,40 @@ describe 'PuppetLanguageServer::MessageHandler' do
         end
       end
 
+      RSpec.shared_examples 'always registered provider' do |short_client_cap, client_cap, server_cap_name|
+        def client_cap_hash(client_cap_string, dynamic_reg)
+          client_cap_string.split('/').reverse.reduce(dynamic_reg) { |memo, obj| { obj => memo } }
+        end
+
+        context "when #{short_client_cap} does support dynamic registration" do
+          let(:request_params) do
+            { 'capabilities' => client_cap_hash(client_cap, true) }
+          end
+
+          it "should statically register a #{server_cap_name}" do
+            expect(subject.request_initialize(connection_id, request_message)).to server_capability(server_cap_name)
+          end
+        end
+
+        context "when #{short_client_cap} does not support dynamic registration" do
+          let(:request_params) do
+            { 'capabilities' => client_cap_hash(client_cap, false) }
+          end
+
+          it "should statically register a #{server_cap_name}" do
+            expect(subject.request_initialize(connection_id, request_message)).to server_capability(server_cap_name)
+          end
+        end
+
+        context "when #{short_client_cap} does not specify dynamic registration" do
+          let(:request_params) { {} }
+
+          it "should statically register a #{server_cap_name}" do
+            expect(subject.request_initialize(connection_id, request_message)).to server_capability(server_cap_name)
+          end
+        end
+      end
+
       it 'should reply with capabilites' do
         expect(subject.request_initialize(connection_id, request_message)['capabilities']).to_not be_nil
       end
@@ -135,6 +171,7 @@ describe 'PuppetLanguageServer::MessageHandler' do
       end
 
       include_examples 'dynamically registered provider', 'onTypeFormatting', 'textDocument/onTypeFormatting/dynamicRegistration', 'documentOnTypeFormattingProvider'
+      include_examples 'always registered provider', 'formatting', 'textDocument/formatting/dynamicRegistration', 'documentFormattingProvider'
 
       context 'When folding is supported' do
         before(:each) do
@@ -791,6 +828,68 @@ describe 'PuppetLanguageServer::MessageHandler' do
 
           it 'should reply with nil' do
             expect(subject.request_textdocument_documentsymbol(connection_id, request_message)).to be_nil
+          end
+        end
+      end
+    end
+
+    # textDocument/formatting - https://microsoft.github.io/language-server-protocol/specification#textDocument_formatting
+    describe '.request_textdocument_formatting' do
+      let(:request_rpc_method) { 'textDocument/formatting' }
+      let(:file_uri) { MANIFEST_FILENAME }
+      let(:file_content) { "{\n  a =>\n  name => 'value'\n}\n" }
+      let(:formatting_options) { { 'tabSize' => 2, 'insertSpaces' => true} }
+      let(:request_params) { {
+        'textDocument' => {
+          'uri' => file_uri
+        },
+        'options' => formatting_options
+      } }
+      let(:provider) { PuppetLanguageServer::Manifest::DocumentFormattingProvider.new }
+
+      before(:each) do
+        subject.documents.clear
+        subject.documents.set_document(file_uri,file_content, 0)
+      end
+
+      context 'for a file the server does not understand' do
+        let(:file_uri) { UNKNOWN_FILENAME }
+
+        it 'should log an error message' do
+          expect(PuppetLanguageServer).to receive(:log_message).with(:error,/Unable to format document on/)
+          subject.request_textdocument_formatting(connection_id, request_message)
+        end
+
+        it 'should reply with nil' do
+          expect(subject.request_textdocument_formatting(connection_id, request_message)).to be_nil
+        end
+      end
+
+      context 'for a puppet manifest file' do
+        let(:file_uri) { MANIFEST_FILENAME }
+
+        before(:each) do
+          allow(PuppetLanguageServer::Manifest::DocumentFormattingProvider).to receive(:instance).and_return(provider)
+        end
+
+        it 'should call format method on the Document Formatting provider' do
+          expect(provider).to receive(:format)
+            .with(file_content, formatting_options, Integer).and_return('something')
+          subject.request_textdocument_formatting(connection_id, request_message)
+        end
+
+        context 'and an error occurs during formatting' do
+          before(:each) do
+            expect(provider).to receive(:format).and_raise('MockError')
+          end
+
+          it 'should log an error message' do
+            expect(PuppetLanguageServer).to receive(:log_message).with(:error,/MockError/)
+            subject.request_textdocument_formatting(connection_id, request_message)
+          end
+
+          it 'should reply with nil' do
+            expect(subject.request_textdocument_formatting(connection_id, request_message)).to be_nil
           end
         end
       end

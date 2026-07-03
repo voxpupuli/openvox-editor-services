@@ -4,6 +4,7 @@
   epp/validation_provider
   manifest/completion_provider
   manifest/definition_provider
+  manifest/document_formatting_provider
   manifest/document_symbol_provider
   manifest/folding_provider
   manifest/format_on_type_provider
