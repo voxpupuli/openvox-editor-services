@@ -1,0 +1,12 @@
+---
+default: true
+
+line-length:
+  line_length: 210
+
+no-inline-html:
+  allowed_elements:
+    - br
+    - img
+
+descriptive-link-text: false
