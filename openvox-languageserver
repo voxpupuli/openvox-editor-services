@@ -7,6 +7,8 @@ Dir[File.join(__dir__, 'vendor', 'puppet-lint-*', 'lib')].sort.each { |path| $LO
 $LOAD_PATH.unshift(File.join(__dir__, 'vendor', 'molinillo', 'lib'))
 $LOAD_PATH.unshift(File.join(__dir__, 'vendor', 'puppetfile-resolver', 'lib'))
 
+require 'openvox_agent_rubygems'
+OpenVoxAgentRubygems.activate!
 require 'puppet_languageserver'
 
 options = PuppetLanguageServer::CommandLineParser.parse(ARGV)

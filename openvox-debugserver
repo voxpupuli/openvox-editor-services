@@ -3,6 +3,8 @@
 
 $LOAD_PATH.unshift(File.join(__dir__, 'lib'))
 
+require 'openvox_agent_rubygems'
+OpenVoxAgentRubygems.activate!
 require 'puppet_debugserver'
 
 options = PuppetDebugServer::CommandLineParser.parse(ARGV)

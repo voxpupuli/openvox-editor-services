@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
+require 'openvox_agent_rubygems'
+
 module OpenVoxRuntime
   GEM_NAME = 'openvox'
 
   def self.activate!(version = nil)
+    OpenVoxAgentRubygems.activate!
     specification = select_specification(version)
     raise Gem::LoadError, "Unable to find the #{GEM_NAME} gem#{version.nil? ? '' : " version #{version}"}" if specification.nil?
 
     if Gem::Specification.find_all_by_name(GEM_NAME).include?(specification)
       version.nil? || version.empty? ? gem(GEM_NAME) : gem(GEM_NAME, version)
+      OpenVoxAgentRubygems.restore_paths!
     else
       # OpenVox agent packages may retain a puppet-<version>.gemspec filename.
       # RubyGems ignores that file for lookup by the declared `openvox` name,
