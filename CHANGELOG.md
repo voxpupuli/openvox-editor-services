@@ -1,8 +1,26 @@
 # Changelog
 
-## [3.0.0](https://github.com/voxpupuli/openvox-editor-services/tree/3.0.0) (2026-07-02)
+## [3.1.0](https://github.com/voxpupuli/openvox-editor-services/tree/3.1.0) (2026-07-03)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v2.0.4...3.0.0)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.0.0...3.1.0)
+
+**Implemented enhancements:**
+
+- feat: add document formatter [\#6](https://github.com/voxpupuli/openvox-editor-services/pull/6) ([rwaffen](https://github.com/rwaffen))
+
+**Fixed bugs:**
+
+- fix: patch startup problems with rvm rubies vs agent ruby [\#7](https://github.com/voxpupuli/openvox-editor-services/pull/7) ([rwaffen](https://github.com/rwaffen))
+
+**Merged pull requests:**
+
+- ci: add test suite verfication step, move markdownlint into ci [\#12](https://github.com/voxpupuli/openvox-editor-services/pull/12) ([rwaffen](https://github.com/rwaffen))
+- feat: add markdown lint, labeler, release docu, update markdown files [\#11](https://github.com/voxpupuli/openvox-editor-services/pull/11) ([rwaffen](https://github.com/rwaffen))
+- CI: pin external workflows [\#5](https://github.com/voxpupuli/openvox-editor-services/pull/5) ([bastelfreak](https://github.com/bastelfreak))
+
+## [v3.0.0](https://github.com/voxpupuli/openvox-editor-services/tree/v3.0.0) (2026-07-02)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v2.0.4...v3.0.0)
 
 **Implemented enhancements:**
 
