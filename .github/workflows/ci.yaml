@@ -109,3 +109,18 @@ jobs:
       - uses: DavidAnson/markdownlint-cli2-action@ded1f9488f68a970bc66ea5619e13e9b52e601cd # v23.2.0
         with:
           globs: '**/*.md'
+
+  tests:
+    name: Test suite
+    if: always()
+    needs:
+      - lint
+      - specs
+      - coverage
+      - markdown-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify required jobs
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
