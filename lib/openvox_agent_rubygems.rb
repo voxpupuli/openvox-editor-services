@@ -66,7 +66,11 @@ module OpenVoxAgentRubygems
 
   def self.user_ruby_path?(path)
     normalized = normalized_path(path)
-    home = Dir.home rescue nil
+    home = begin
+      Dir.home
+    rescue StandardError
+      nil
+    end
 
     return false if home.nil? || home.empty?
 
