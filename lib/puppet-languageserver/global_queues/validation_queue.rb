@@ -57,6 +57,7 @@ module PuppetLanguageServer
         results = case document_store.document_type(job_object.file_uri)
                   when :manifest
                     options[:tasks_mode] = document_store.plan_file?(job_object.file_uri)
+                    options[:document_uri] = job_object.file_uri
                     PuppetLanguageServer::Manifest::ValidationProvider.validate(session_state, content, options)
                   when :epp
                     PuppetLanguageServer::Epp::ValidationProvider.validate(content)

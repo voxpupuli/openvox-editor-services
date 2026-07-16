@@ -133,7 +133,7 @@ module PuppetLanguageServer
 
       case documents.document_type(file_uri)
       when :manifest
-        changes, new_content = PuppetLanguageServer::Manifest::ValidationProvider.fix_validate_errors(session_state, content)
+        changes, new_content = PuppetLanguageServer::Manifest::ValidationProvider.fix_validate_errors(session_state, content, file_uri)
       else
         raise "Unable to fixDiagnosticErrors on #{file_uri}"
       end

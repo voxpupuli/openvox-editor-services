@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'puppet-languageserver/puppet_lint'
+require 'puppet-languageserver/uri_helper'
 module PuppetLanguageServer
   module Manifest
     module ValidationProvider
@@ -13,11 +14,11 @@ module PuppetLanguageServer
       #  [ <Int> Number of problems fixed,
       #    <String> New Content
       #  ]
-      def self.fix_validate_errors(session_state, content)
+      def self.fix_validate_errors(session_state, content, document_uri = nil)
         init_puppet_lint(session_state.documents.store_root_path, ['--fix'])
 
         linter = PuppetLint::Checks.new
-        problems = linter.run(LINT_FILENAME, content)
+        problems = linter.run(lint_filename(document_uri), content)
         problems_fixed = problems.nil? ? 0 : problems.count { |item| item[:kind] == :fixed }
 
         [problems_fixed, linter.manifest]
@@ -37,7 +38,7 @@ module PuppetLanguageServer
 
         begin
           linter = PuppetLint::Checks.new
-          problems = linter.run(LINT_FILENAME, content)
+          problems = linter.run(lint_filename(options[:document_uri]), content)
           unless problems.nil?
             problems.each do |problem|
               # Syntax errors are better handled by the puppet parser, not puppet lint
@@ -125,6 +126,13 @@ module PuppetLanguageServer
         linter_options.parse!(lint_options)
       end
       private_class_method :init_puppet_lint
+
+      def self.lint_filename(document_uri)
+        PuppetLanguageServer::UriHelper.uri_path(document_uri) || LINT_FILENAME
+      rescue URI::InvalidURIError
+        LINT_FILENAME
+      end
+      private_class_method :lint_filename
     end
   end
 end
