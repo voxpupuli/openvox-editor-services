@@ -148,6 +148,16 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
 
         expect(diagnostics.map(&:code)).not_to include('autoloader_layout')
       end
+
+      it 'uses the document path for autoloader layout checks with a short module path' do
+        diagnostics = subject.validate(
+          session_state,
+          "class example::nested {}\n",
+          :document_uri => 'file:///workspace/example/manifests/nested.pp'
+        )
+
+        expect(diagnostics.map(&:code)).not_to include('autoloader_layout')
+      end
     end
 
     describe "Given an incomplete manifest which has syntax errors" do
