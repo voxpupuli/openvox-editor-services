@@ -143,7 +143,7 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
         diagnostics = subject.validate(
           session_state,
           "class example::nested {}\n",
-          :document_uri => 'file:///workspace/example/manifests/nested.pp'
+          :document_uri => 'file:///workspace/puppet-example/manifests/nested.pp'
         )
 
         expect(diagnostics.map(&:code)).not_to include('autoloader_layout')

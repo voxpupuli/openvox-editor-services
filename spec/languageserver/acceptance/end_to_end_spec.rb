@@ -268,6 +268,25 @@ describe 'End to End Testing' do
   end
 
   context 'Processing a Puppet module' do
+    let(:workspace) { File.join($root_dir, 'spec', 'languageserver-sidecar', 'fixtures', 'valid_module_workspace') }
+    let(:manifest_file) { File.join(workspace, 'manifests', 'init.pp') }
+
+    it 'validates autoloader layout relative to the module root' do
+      @client.send_data(@client.initialize_request(@client.next_seq_id, workspace))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+
+      @client.send_data(@client.initialized_notification)
+      @client.send_client_settings
+      @client.clear_messages!
+      @client.wait_for_puppet_loading(120)
+
+      @client.clear_messages!
+      @client.send_data(@client.did_open_notification(manifest_file, 1))
+      expect(@client).to receive_notification_within_timeout(['textDocument/publishDiagnostics', 5])
+      result = @client.data_from_notification_name('textDocument/publishDiagnostics')
+
+      expect(result['params']['diagnostics'].map { |diagnostic| diagnostic['code'] }).not_to include('autoloader_layout')
+    end
   end
 
   context 'Processing a Control Repo' do

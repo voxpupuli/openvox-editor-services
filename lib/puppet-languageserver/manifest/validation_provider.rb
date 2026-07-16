@@ -15,7 +15,7 @@ module PuppetLanguageServer
       #    <String> New Content
       #  ]
       def self.fix_validate_errors(session_state, content, document_uri = nil)
-        init_puppet_lint(session_state.documents.store_root_path, ['--fix'])
+        init_puppet_lint(session_state.documents.store_root_path, ['--fix', '--relative'])
 
         linter = PuppetLint::Checks.new
         problems = linter.run(lint_filename(document_uri), content)
@@ -34,7 +34,7 @@ module PuppetLanguageServer
         # TODO: Need to implement max_problems
         problems = 0
 
-        init_puppet_lint(session_state.documents.store_root_path, [])
+        init_puppet_lint(session_state.documents.store_root_path, ['--relative'])
 
         begin
           linter = PuppetLint::Checks.new
