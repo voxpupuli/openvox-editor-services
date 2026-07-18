@@ -4,6 +4,7 @@ name: 🤖 Enable Auto-Merge
 # yamllint disable-line rule:truthy
 on:
   pull_request: {}
+  merge_group: {}
 
 permissions:
   contents: read
