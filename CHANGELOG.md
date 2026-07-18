@@ -1,8 +1,17 @@
 # Changelog
 
-## [3.1.0](https://github.com/voxpupuli/openvox-editor-services/tree/3.1.0) (2026-07-03)
+## [3.2.0](https://github.com/voxpupuli/openvox-editor-services/tree/3.2.0) (2026-07-18)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.0.0...3.1.0)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.0...3.2.0)
+
+**Fixed bugs:**
+
+- fix: use relative flag to fix autoload layout bug [\#14](https://github.com/voxpupuli/openvox-editor-services/pull/14) ([rwaffen](https://github.com/rwaffen))
+- fix: patch autoload behavior [\#13](https://github.com/voxpupuli/openvox-editor-services/pull/13) ([rwaffen](https://github.com/rwaffen))
+
+## [v3.1.0](https://github.com/voxpupuli/openvox-editor-services/tree/v3.1.0) (2026-07-03)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.0.0...v3.1.0)
 
 **Implemented enhancements:**
 

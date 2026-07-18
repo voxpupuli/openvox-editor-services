@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PuppetEditorServices
-  PUPPETEDITORSERVICESVERSION = '3.1.0' unless defined? PUPPETEDITORSERVICESVERSION
+  PUPPETEDITORSERVICESVERSION = '3.2.0' unless defined? PUPPETEDITORSERVICESVERSION
 
   # @api public
   #
