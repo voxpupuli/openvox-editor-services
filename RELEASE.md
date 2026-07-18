@@ -31,6 +31,6 @@ Then open a PR, discuss and merge.
 ```shell
 git switch main
 git pull --rebase
-git tag v$RELEASE_VERSION --message "v$RELEASE_VERSION"
+git tag v$RELEASE_VERSION --sign --message "v$RELEASE_VERSION"
 git push --tags
 ```

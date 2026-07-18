@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  // use the recommended config preset as a base
+  "extends": [
+    "config:recommended"
+  ],
+  // add labels to all renovate PRs
+  "addLabels": [
+    "dependencies",
+    "renovate"
+  ],
+  // assign PRs to code owners
+  "assigneesFromCodeOwners": true
+}
