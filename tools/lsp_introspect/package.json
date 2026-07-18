@@ -15,6 +15,6 @@
     "vscode-languageserver-types": "3.15.1",
     "vscode-debugprotocol": "1.40.0",
     "typescript-parser": "2.6.1",
-    "typescript": "^3.0.3"
+    "typescript": "^7.0.0"
   }
 }
