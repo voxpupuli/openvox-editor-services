@@ -19,7 +19,7 @@ AllCops:
     - Rakefile
   NewCops: enable
   SuggestExtensions: false
-  TargetRubyVersion: '3.4'
+  TargetRubyVersion: 3.4
 # Disabled
 Style/ClassAndModuleChildren:
   Enabled: false
