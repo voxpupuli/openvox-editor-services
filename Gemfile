@@ -40,7 +40,7 @@ group :development do
 
   gem "win32-dir", "<= 0.4.9",      :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
   gem "win32-eventlog", "<= 0.6.7", :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
-  gem "win32-process", "<= 0.7.5",  :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
+  gem "win32-process", "<= 0.10.0",  :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
   gem "win32-security", "<= 0.2.5", :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
   gem "win32-service", "<= 0.8.8",  :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
 
