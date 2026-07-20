@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'io/wait'
 require 'puppet_editor_services/logging'
 require 'puppet_editor_services/server/base'
 require 'puppet_editor_services/connection/stdio'
@@ -59,8 +60,7 @@ module PuppetEditorServices
       end
 
       def pipe_is_readable?(stream, timeout = 0.5)
-        read_ready = IO.select([stream], [], [], timeout)
-        read_ready && stream == read_ready[0][0]
+        !stream.wait_readable(timeout).nil?
       end
 
       def read_from_pipe(pipe, timeout = 0.1, &)
