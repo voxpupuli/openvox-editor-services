@@ -87,9 +87,10 @@ module PuppetLanguageServer
         result
       end
 
-      private
-
       VALID_TOKEN_TYPES = %i[NAME STRING SSTRING].freeze
+      private_constant :VALID_TOKEN_TYPES
+
+      private
 
       def find_token_by_location(tokens, line, character)
         return nil if tokens.empty?

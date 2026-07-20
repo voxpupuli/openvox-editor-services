@@ -16,12 +16,6 @@ Lint/RedundantDirGlobSort:
     - 'openvox-languageserver'
     - 'puppet-languageserver'
 
-# Offense count: 2
-Lint/UselessConstantScoping:
-  Exclude:
-    - 'lib/puppet-languageserver/manifest/format_on_type_provider.rb'
-    - 'lib/puppet-languageserver/sidecar_protocol.rb'
-
 # Offense count: 171
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
 Metrics/AbcSize:
