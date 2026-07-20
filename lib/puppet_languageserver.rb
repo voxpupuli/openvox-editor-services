@@ -165,6 +165,7 @@ module PuppetLanguageServer
         end
 
         opts.on('--enable-file-cache', '** DEPRECATED ** Enables the file system cache for Puppet Objects (types, class etc.)') do |_misc|
+          # This option is now deprecated and has no effect.  The file system cache is always enabled.
         end
 
         # These options are normally passed through to the Sidecar
@@ -185,6 +186,7 @@ module PuppetLanguageServer
         end
 
         opts.on('--local-workspace=PATH', '** DEPRECATED ** The workspace or file path that will be used to provide module-specific functionality. Default is no workspace path.') do |_path|
+          # This option is now deprecated and has no effect.  The workspace path is now determined by the client.
         end
 
         opts.on('-h', '--help', 'Prints this help') do
