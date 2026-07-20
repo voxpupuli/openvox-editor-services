@@ -100,7 +100,7 @@ Style/MutableConstant:
   Exclude:
     - 'lib/puppet_editor_services/protocol/json_rpc.rb'
 
-# Offense count: 7
+# Offense count: 6
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle, AllowedMethods, AllowedPatterns.
 # SupportedStyles: predicate, comparison
@@ -111,7 +111,6 @@ Style/NumericPredicate:
     - 'lib/puppet-languageserver/manifest/signature_provider.rb'
     - 'lib/puppet-languageserver/message_handler.rb'
     - 'lib/puppet-languageserver/puppet_parser_helper.rb'
-    - 'lib/puppet-languageserver/session_state/language_client.rb'
     - 'lib/puppet_editor_services/server/tcp.rb'
 
 # Offense count: 11
@@ -175,7 +174,7 @@ Style/ZeroLengthPredicate:
     - 'lib/puppet-languageserver/message_handler.rb'
     - 'lib/puppet_editor_services/server/tcp.rb'
 
-# Offense count: 623
+# Offense count: 624
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns, SplitStrings.
 # URISchemes: http, https
