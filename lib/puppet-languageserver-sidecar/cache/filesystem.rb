@@ -13,7 +13,7 @@ module PuppetLanguageServerSidecar
 
         @cache_dir = File.join(Dir.tmpdir, 'puppet-vscode-cache')
         begin
-          Dir.mkdir(@cache_dir) unless Dir.exist?(@cache_dir)
+          FileUtils.mkdir_p(@cache_dir)
         rescue Errno::ENOENT => e
           PuppetLanguageServerSidecar.log_message(:error, "[PuppetLanguageServerSidecar::Cache::FileSystem] An error occured while creating file cache.  Disabling cache: #{e}")
           @cache_dir = nil
