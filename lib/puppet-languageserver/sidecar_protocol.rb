@@ -471,8 +471,6 @@ module PuppetLanguageServer
           @aggregate.each(&block)
         end
 
-        private
-
         # When adding a new metadata item:
         # - Add to the information to this hash
         # - Add a method to access the aggregate
@@ -494,6 +492,9 @@ module PuppetLanguageServer
             list_class: PuppetTypeList
           }
         }.freeze
+        private_constant :METADATA_LIST
+
+        private
 
         def list_for_object_class(klass)
           METADATA_LIST.each do |name, info|

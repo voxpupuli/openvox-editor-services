@@ -6,36 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# Configuration parameters: IgnoreLiteralBranches, IgnoreConstantBranches, IgnoreDuplicateElseBranch.
-Lint/DuplicateBranch:
-  Exclude:
-    - 'lib/puppet-languageserver-sidecar/puppet_helper.rb'
-
-# Offense count: 2
-# Configuration parameters: AllowComments, AllowEmptyLambdas.
-Lint/EmptyBlock:
-  Exclude:
-    - 'lib/puppet_languageserver.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/IncompatibleIoSelectWithFiberScheduler:
-  Exclude:
-    - 'lib/puppet_editor_services/server/stdio.rb'
-
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/NonAtomicFileOperation:
-  Exclude:
-    - 'lib/puppet-languageserver-sidecar/cache/filesystem.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/OrAssignmentToConstant:
-  Exclude:
-    - 'lib/puppet-languageserver/session_state/document_store.rb'
-
 # Offense count: 5
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Lint/RedundantDirGlobSort:
@@ -45,12 +15,6 @@ Lint/RedundantDirGlobSort:
     - 'lib/puppet-languageserver/puppet_lint.rb'
     - 'openvox-languageserver'
     - 'puppet-languageserver'
-
-# Offense count: 2
-Lint/UselessConstantScoping:
-  Exclude:
-    - 'lib/puppet-languageserver/manifest/format_on_type_provider.rb'
-    - 'lib/puppet-languageserver/sidecar_protocol.rb'
 
 # Offense count: 171
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
@@ -136,7 +100,7 @@ Style/MutableConstant:
   Exclude:
     - 'lib/puppet_editor_services/protocol/json_rpc.rb'
 
-# Offense count: 7
+# Offense count: 6
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle, AllowedMethods, AllowedPatterns.
 # SupportedStyles: predicate, comparison
@@ -147,7 +111,6 @@ Style/NumericPredicate:
     - 'lib/puppet-languageserver/manifest/signature_provider.rb'
     - 'lib/puppet-languageserver/message_handler.rb'
     - 'lib/puppet-languageserver/puppet_parser_helper.rb'
-    - 'lib/puppet-languageserver/session_state/language_client.rb'
     - 'lib/puppet_editor_services/server/tcp.rb'
 
 # Offense count: 11
@@ -211,7 +174,7 @@ Style/ZeroLengthPredicate:
     - 'lib/puppet-languageserver/message_handler.rb'
     - 'lib/puppet_editor_services/server/tcp.rb'
 
-# Offense count: 623
+# Offense count: 624
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns, SplitStrings.
 # URISchemes: http, https

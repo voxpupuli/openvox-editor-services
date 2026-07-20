@@ -12,7 +12,7 @@ describe 'PuppetLanguageServerSidecar::Cache::FileSystem' do
 
     context 'when cache directory cannot be created' do
       before(:each) do
-        expect(Dir).to receive(:tmpdir).and_return('/dir/does/not/exist')
+        allow(FileUtils).to receive(:mkdir_p).and_raise(Errno::EACCES)
       end
 
       it 'should disable cache if cache dir is unable to be created' do
