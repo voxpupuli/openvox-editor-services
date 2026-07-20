@@ -102,25 +102,6 @@ Naming/MemoizedInstanceVariableName:
     - 'lib/puppet-languageserver-sidecar/puppet_strings_monkey_patches.rb'
     - 'lib/puppet-languageserver/server_capabilities.rb'
 
-# Offense count: 4
-# Configuration parameters: MinSize.
-Performance/CollectionLiteralInLoop:
-  Exclude:
-    - 'lib/puppet-languageserver-sidecar/puppet_helper.rb'
-    - 'lib/puppet-languageserver/sidecar_protocol.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/Count:
-  Exclude:
-    - 'lib/puppet-languageserver/session_state/language_client.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Security/IoMethods:
-  Exclude:
-    - 'lib/puppet-debugserver/debug_session/break_points.rb'
-
 # Offense count: 107
 # Configuration parameters: AllowedConstants.
 Style/Documentation:

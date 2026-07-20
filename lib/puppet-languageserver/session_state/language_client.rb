@@ -100,7 +100,7 @@ module PuppetLanguageServer
 
         PuppetLanguageServer.log_message(:info, "Attempting to dynamically register the #{method} method with id #{id}")
 
-        if @registrations[method] && @registrations[method].select { |i| i[:state] == :pending }.count > 0
+        if @registrations[method]&.any? { |registration| registration[:state] == :pending }
           # The protocol doesn't specify whether this is allowed and is probably per client specific. For the moment we will allow
           # the registration to be sent but log a message that something may be wrong.
           PuppetLanguageServer.log_message(:warn, "A dynamic registration/deregistration for the #{method} method is already in progress")
