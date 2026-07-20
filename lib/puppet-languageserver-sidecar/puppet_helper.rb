@@ -164,9 +164,7 @@ module PuppetLanguageServerSidecar
         # Path to the environment
         @env_path = puppet_env.configuration.path_to_env
         # Path to the puppet installation
-        @puppet_path = if puppet_env.loaders.nil? # No loaders have been created yet
-                         nil
-                       elsif puppet_env.loaders.puppet_system_loader.nil?
+        @puppet_path = if puppet_env.loaders.nil? || puppet_env.loaders.puppet_system_loader.nil? # No loaders have been created yet
                          nil
                        elsif puppet_env.loaders.puppet_system_loader.lib_root?
                          File.join(puppet_env.loaders.puppet_system_loader.path, '..')
