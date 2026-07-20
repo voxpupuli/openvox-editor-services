@@ -65,7 +65,7 @@ function GenerateRubyFromProperty(prop, allTypes) {
       return prefix + "to_typed_aray(value['" + prop.name + "'], " + propName + ")\n"
     }
 
-    return defaultArrayText.replace(/\n/, " # Unknown array type\n");
+    return defaultArrayText.replace(/\n/g, " # Unknown array type\n");
   } else {
     if (prop.type == 'any') { return defaultText; }
     if (prop.type == 'string') { return defaultText; }
@@ -76,7 +76,7 @@ function GenerateRubyFromProperty(prop, allTypes) {
       return prefix + prop.type + ".new(value['" + prop.name + "']) unless value['" + prop.name + "'].nil?\n"
     }
 
-    return defaultText.replace(/\n/, " # Unknown type\n");
+    return defaultText.replace(/\n/g, " # Unknown type\n");
   }
 }
 
