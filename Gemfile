@@ -9,7 +9,7 @@ source ENV['GEM_SOURCE'] || "https://rubygems.org"
 # -=-=-=-=-=- WARNING -=-=-=-=-=-
 
 group :development do
-  gem 'json', "< 2.8.0",                  :require => false
+  gem 'json', "< 2.21.2",                  :require => false
   gem 'openfact', '>= 5.1', '< 6',        :require => false
   gem 'openvox-strings', '~> 7.1',        :require => false
   gem 'puppetfile-resolver', '~> 0.6.2',  :require => false
