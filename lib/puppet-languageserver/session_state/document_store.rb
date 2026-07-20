@@ -149,7 +149,7 @@ module PuppetLanguageServer
       end
 
       # Workspace management
-      WORKSPACE_CACHE_TTL_SECONDS ||= 60
+      WORKSPACE_CACHE_TTL_SECONDS = 60
       def initialize_store(options = {})
         @workspace_path = options[:workspace]
         @workspace_info_cache = {
