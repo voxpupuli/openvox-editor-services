@@ -32,6 +32,8 @@ module PuppetLanguageServer
       class BaseClass
         include Base
 
+        IGNORED_INSTANCE_METHODS = %i[to_h to_json].freeze
+
         def to_json(*options)
           to_h.to_json(options)
         end
@@ -46,7 +48,7 @@ module PuppetLanguageServer
           self.class
               .instance_methods(false)
               .reject { |name| name.to_s.end_with?('=', '!') }
-              .reject { |name| %i[to_h to_json].include?(name) }
+              .reject { |name| IGNORED_INSTANCE_METHODS.include?(name) }
               .each do |method_name|
             return false unless send(method_name) == other.send(method_name)
           end
@@ -59,7 +61,7 @@ module PuppetLanguageServer
           self.class
               .instance_methods(false)
               .reject { |name| name.to_s.end_with?('=', '!') }
-              .reject { |name| %i[to_h to_json].include?(name) }
+              .reject { |name| IGNORED_INSTANCE_METHODS.include?(name) }
               .each do |method_name|
             return false unless send(method_name).eql?(other.send(method_name))
           end
@@ -70,7 +72,7 @@ module PuppetLanguageServer
           props = self.class
                       .instance_methods(false)
                       .reject { |name| name.to_s.end_with?('=', '!') }
-                      .reject { |name| %i[to_h to_json].include?(name) }
+                      .reject { |name| IGNORED_INSTANCE_METHODS.include?(name) }
                       .map do |method_name|
             send(method_name).hash
           end

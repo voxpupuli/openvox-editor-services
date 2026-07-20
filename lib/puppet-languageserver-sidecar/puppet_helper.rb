@@ -12,6 +12,7 @@ module PuppetLanguageServerSidecar
     # Object - While useful, typically only needed when extended the type system as opposed to general use
     # TypeSet - While useful, typically only needed when extended the type system as opposed to general use
     IGNORE_DATATYPE_NAMES = %w[TypeReference TypeAlias Object TypeSet ObjectTypeExten Iterable AbstractTimeData TypeWithContained].freeze
+    IGNORE_TYPE_NAMES = %w[whit component].freeze
 
     # Resource Face
     def self.get_puppet_resource(typename, title = nil)
@@ -107,7 +108,7 @@ module PuppetLanguageServerSidecar
         next unless object_types.include?(:type)
 
         file_doc.types.each do |item|
-          result.append!(item) unless %w[whit component].include?(name)
+          result.append!(item) unless IGNORE_TYPE_NAMES.include?(name)
           finder.temp_file.unlink if item.key == 'file' && File.exist?(finder.temp_file.path) # Remove the temp_file.rb if it exists
         end
       end
