@@ -42,7 +42,7 @@ group :development do
   gem "win32-eventlog", "<= 0.6.7", :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
   gem "win32-process", "<= 0.10.0",  :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
   gem "win32-security", "<= 0.5.0", :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
-  gem "win32-service", "<= 2.3.2",  :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
+  gem "win32-service", "<= 2.4.0",  :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
 
   # Gems for building release tarballs etc.
   gem "archive-zip", :require => false
