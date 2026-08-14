@@ -17,7 +17,8 @@ module PuppetLanguageServer
         include Base
 
         def to_json(*options)
-          ::JSON.generate(to_h, options)
+          # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
+          ::JSON.generate(to_h, *options)
         end
 
         def from_json!(json_string)
@@ -35,7 +36,8 @@ module PuppetLanguageServer
         IGNORED_INSTANCE_METHODS = %i[to_h to_json].freeze
 
         def to_json(*options)
-          to_h.to_json(options)
+          # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
+          to_h.to_json(*options)
         end
 
         def from_json!(json_string)
@@ -122,7 +124,8 @@ module PuppetLanguageServer
         include Base
 
         def to_json(*options)
-          "[#{map { |item| item.to_json(options) }.join(',')}]"
+          # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
+          "[#{map { |item| item.to_json(*options) }.join(',')}]"
         end
 
         def from_json!(json_string)
@@ -143,11 +146,12 @@ module PuppetLanguageServer
         attr_accessor :vertices, :edges, :error_content
 
         def to_json(*options)
+          # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
           {
             'vertices' => vertices,
             'edges' => edges,
             'error_content' => error_content
-          }.to_json(options)
+          }.to_json(*options)
         end
 
         def from_json!(json_string)
@@ -400,7 +404,8 @@ module PuppetLanguageServer
         end
 
         def to_json(*options)
-          to_h.to_json(options)
+          # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
+          to_h.to_json(*options)
         end
 
         def from_json!(json_string)
@@ -450,7 +455,8 @@ module PuppetLanguageServer
         end
 
         def to_json(*options)
-          @aggregate.to_json(options)
+          # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
+          @aggregate.to_json(*options)
         end
 
         def from_json!(json_string)

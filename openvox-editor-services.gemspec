@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.license        = 'Apache-2.0'
   s.add_runtime_dependency 'hiera-eyaml', '~> 2.1'
   s.add_runtime_dependency 'molinillo', '~> 0.6'
-  s.add_runtime_dependency 'openfact', '>= 5.1', '< 6'
+  s.add_runtime_dependency 'openfact', '>= 5.1', '< 7'
   s.add_runtime_dependency 'openvox-strings', '~> 7.1'
   s.add_runtime_dependency 'puppetfile-resolver', '~> 0.6'
   s.add_runtime_dependency 'voxpupuli-puppet-lint-plugins', '= 7.0.0'

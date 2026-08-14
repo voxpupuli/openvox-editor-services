@@ -30,7 +30,8 @@ module LSP
     def from_h!(value); end
 
     def to_json(*options)
-      to_h.to_json(options)
+      # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
+      to_h.to_json(*options)
     end
 
     private

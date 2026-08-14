@@ -61,6 +61,20 @@ The internal `Puppet` Ruby namespace and `puppet/*` protocol methods are retaine
   ... < lots of text >
 ```
 
+## Build a local VSIX
+
+To test the current editor-services checkout with the sibling `openvox-vscode` repository, run:
+
+```shell
+./scripts/build-local-vsix.sh
+```
+
+The script removes old local gem and VSIX build artifacts, builds the local gem, installs it and its dependencies into
+the extension, compiles the extension, and creates
+`../openvox-vscode/artifacts/openvox-vscode-local-<gem-version>.vsix`.
+It requires Ruby 3.4 or newer and existing npm dependencies in `openvox-vscode`.
+Set `RUBY`, `OPENVOX_VSCODE_DIR`, or `VSIX_OUTPUT` to override the detected Ruby, repository path, or output path.
+
 ## Language Server
 
 ### How to run the Language Server for Development

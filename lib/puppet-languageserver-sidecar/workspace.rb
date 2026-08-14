@@ -17,11 +17,11 @@ module PuppetLanguageServerSidecar
       @root_path
     end
 
-    def self.has_module_metadata? # rubocop:disable Naming/PredicateName
+    def self.has_module_metadata? # rubocop:disable Naming/PredicatePrefix
       @has_module_metadata
     end
 
-    def self.has_environmentconf? # rubocop:disable Naming/PredicateName
+    def self.has_environmentconf? # rubocop:disable Naming/PredicatePrefix
       @has_environmentconf
     end
 

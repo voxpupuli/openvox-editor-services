@@ -8,7 +8,11 @@ module OpenVoxRuntime
   def self.activate!(version = nil)
     OpenVoxAgentRubygems.activate!
     specification = select_specification(version)
-    raise Gem::LoadError, "Unable to find the #{GEM_NAME} gem#{version.nil? ? '' : " version #{version}"}" if specification.nil?
+    if specification.nil?
+      message = "Unable to find the #{GEM_NAME} gem"
+      message << " version #{version}" unless version.nil?
+      raise Gem::LoadError, message
+    end
 
     if Gem::Specification.find_all_by_name(GEM_NAME).include?(specification)
       version.nil? || version.empty? ? gem(GEM_NAME) : gem(GEM_NAME, version)

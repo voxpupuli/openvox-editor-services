@@ -247,7 +247,7 @@ module PuppetLanguageServer
           return result if item_type.nil?
 
           result.documentation = item_type.doc unless item_type.doc.nil?
-          unless item_type.nil? || item_type.signatures.count.zero?
+          unless item_type.nil? || item_type.signatures.none?
             result.detail = item_type.signatures.map(&:key).join("\n\n")
             # The signature provider should handle suggestions after this, so just place the cursor ready for an opening bracket
             result.insertText = data['name'].to_s

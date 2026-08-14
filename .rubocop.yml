@@ -23,3 +23,18 @@ AllCops:
 # Disabled
 Style/ClassAndModuleChildren:
   Enabled: false
+
+# Command and callback methods in this codebase often return the boolean result of
+# their final operation without being predicates. Renaming those public APIs would
+# be misleading and backwards-incompatible.
+Naming/PredicateMethod:
+  Enabled: false
+
+# These files intentionally reopen several upstream classes to apply compatibility
+# patches in one place.
+Style/OneClassPerFile:
+  Exclude:
+    - 'lib/puppet-debugserver/puppet_monkey_patches.rb'
+    - 'lib/puppet-languageserver-sidecar/puppet_environment_monkey_patches.rb'
+    - 'lib/puppet-languageserver-sidecar/puppet_modulepath_monkey_patches.rb'
+    - 'lib/puppet-languageserver/puppet_monkey_patches.rb'
