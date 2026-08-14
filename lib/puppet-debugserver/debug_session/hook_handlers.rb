@@ -133,7 +133,7 @@ module PuppetDebugServer
           target_end_line   = @debug_session.line_for_offset(target, target_loc.offset + target_loc.length)
 
           # TODO: What about Hit and Conditional BreakPoints?
-          bp = line_breakpoints.find_index { |bp_line| bp_line >= target_start_line && bp_line <= target_end_line }
+          bp = line_breakpoints.find_index { |bp_line| bp_line.between?(target_start_line, target_end_line) }
           unless bp.nil?
             # Re-raise the hook as a breakpoint
             @debug_session.execute_hook(:hook_breakpoint, [ast_classname, ''] + args)

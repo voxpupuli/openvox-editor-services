@@ -20,7 +20,8 @@ module PuppetEditorServices
         end
 
         def to_json(*options)
-          to_h.to_json(options)
+          # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
+          to_h.to_json(*options)
         end
 
         def to_h

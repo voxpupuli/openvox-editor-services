@@ -143,7 +143,7 @@ module PuppetLanguageServer
       private_class_method :resolver_cache
 
       def self.document_error_to_diagnostic(document_uri, error)
-        if error.puppetfile_modules.count.zero?
+        if error.puppetfile_modules.none?
           return LSP::Diagnostic.new(
             'severity' => LSP::DiagnosticSeverity::ERROR,
             'range' => LSP.create_range(0, 0, 0, max_line_length),

@@ -194,7 +194,7 @@ module PuppetLanguageServer
       def self.get_puppet_class_content(item_class)
         content = "**#{item_class.key}** Resource"
         content += "\n\n#{item_class.doc}" unless item_class.doc.nil?
-        unless item_class.parameters.count.zero?
+        unless item_class.parameters.none?
           content += "\n\n---\n"
           item_class.parameters.sort.each do |name, _param|
             content += "* #{name}\n"

@@ -370,7 +370,8 @@ module PuppetLanguageServerSidecar
     end
 
     def to_json(*options)
-      JSON.generate(to_h, options)
+      # JSON 2.21 requires an options hash, so expand the captured arguments instead of passing their array.
+      JSON.generate(to_h, *options)
     end
 
     # Deserialisation

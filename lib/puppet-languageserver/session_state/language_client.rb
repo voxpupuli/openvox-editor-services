@@ -135,7 +135,7 @@ module PuppetLanguageServer
           reg[:state] = :pending
         end
 
-        if params.unregisterations.count.zero?
+        if params.unregisterations.none?
           PuppetLanguageServer.log_message(:debug, "Nothing to deregister for the #{method} method")
           return true
         end

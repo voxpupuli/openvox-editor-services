@@ -7,7 +7,7 @@ module PuppetLanguageServerSidecar
 
       begin
         node_graph = compile_to_pretty_relationship_graph(content)
-        if node_graph.vertices.count.zero?
+        if node_graph.vertices.none?
           result.set_error('There were no resources created in the node graph. Is there an include statement missing?')
           return result
         end
@@ -60,15 +60,15 @@ module PuppetLanguageServerSidecar
       # Remove vertexes which just clutter the graph
 
       # Remove all of the Puppet::Type::Whit nodes.  This is an internal only class
-      list = graph.vertices.select { |node| node.is_a?(Puppet::Type::Whit) }
+      list = graph.vertices.grep(Puppet::Type::Whit)
       list.each { |node| graph.remove_vertex!(node) }
 
       # Remove all of the Puppet::Type::Schedule nodes
-      list = graph.vertices.select { |node| node.is_a?(Puppet::Type::Schedule) }
+      list = graph.vertices.grep(Puppet::Type::Schedule)
       list.each { |node| graph.remove_vertex!(node) }
 
       # Remove all of the Puppet::Type::Filebucket nodes
-      list = graph.vertices.select { |node| node.is_a?(Puppet::Type::Filebucket) }
+      list = graph.vertices.grep(Puppet::Type::Filebucket)
       list.each { |node| graph.remove_vertex!(node) }
 
       graph

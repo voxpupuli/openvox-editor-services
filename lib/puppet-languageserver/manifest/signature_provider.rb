@@ -78,7 +78,7 @@ module PuppetLanguageServer
         signature_number = func_info.signatures.find_index { |sig| sig.parameters.count >= func_arg_count }
 
         # If we still don't know the signature number then assume it's the first one
-        signature_number = 0 if signature_number.nil? && func_info.signatures.count > 0
+        signature_number = 0 if signature_number.nil? && func_info.signatures.any?
 
         response.activeSignature = signature_number unless signature_number.nil?
         response.activeParameter = param_number
@@ -110,10 +110,10 @@ module PuppetLanguageServer
         # Is the cursor on or beyond the closing bracket? then we are not in any parameters
         return nil if char_offset >= function_offset + function_length
         # Does the function even have arguments? then the cursor HAS to be in the first parameter
-        return 0 if function_ast_object.arguments.count.zero?
+        return 0 if function_ast_object.arguments.none?
 
         # Is the cursor within any of the function argument locations? if so, return the parameter number we're in
-        param_number = function_ast_object.arguments.find_index { |arg| char_offset >= arg.offset && char_offset <= arg.offset + arg.length }
+        param_number = function_ast_object.arguments.find_index { |arg| char_offset.between?(arg.offset, arg.offset + arg.length) }
         return param_number unless param_number.nil?
 
         # So now we know the char_offset exists outside any of the locators.  Check the extremities
