@@ -23,7 +23,7 @@ group :development do
   gem 'syslog', '~> 0.4',                 :require => false unless Gem.win_platform?
   gem 'voxpupuli-puppet-lint-plugins', '= 7.0.0', :require => false
   gem 'yard', '~> 0.9.28',                :require => false
-  gem "rubocop-performance", '~> 1.26.0', :require => false
+  gem "rubocop-performance", '~> 1.27.0', :require => false
   gem "rubocop-rspec", '~> 3.10.0',       :require => false
   gem "rubocop", '~> 1.89.0',             :require => false
 
