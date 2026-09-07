@@ -1,4 +1,4 @@
 forge 'https://forge.puppetlabs.com/'
 
 # Modules from the Puppet Forge
-mod 'puppetlabs-stdlib',          '10.0.2'
+mod 'puppetlabs-stdlib',          '10.1.0'
