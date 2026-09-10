@@ -25,7 +25,7 @@ group :development do
   gem 'yard', '~> 0.9.28',                :require => false
   gem "rubocop-performance", '~> 1.26.0', :require => false
   gem "rubocop-rspec", '~> 3.10.0',       :require => false
-  gem "rubocop", '~> 1.89.0',             :require => false
+  gem "rubocop", '~> 1.91.0',             :require => false
 
   if ENV['OPENVOX_GEM_VERSION']
     gem 'openvox', ENV['OPENVOX_GEM_VERSION'], :require => false
