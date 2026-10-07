@@ -42,7 +42,7 @@ jobs:
       contents: write # clone repo and create release
     steps:
       - name: Download gem from GitHub cache
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: gem-artifact
 
@@ -60,7 +60,7 @@ jobs:
       packages: write # publish to rubygems.pkg.github.com
     steps:
       - name: Download gem from GitHub cache
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: gem-artifact
 
@@ -78,7 +78,7 @@ jobs:
       id-token: write # rubygems.org authentication
     steps:
       - name: Download gem from GitHub cache
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: gem-artifact
 
@@ -99,7 +99,7 @@ jobs:
       - release-to-rubygems
     steps:
       - name: Download gem from GitHub cache
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: gem-artifact
 
