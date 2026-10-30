@@ -153,13 +153,13 @@ module PuppetLanguageServer
       def initialize_store(options = {})
         @workspace_path = options[:workspace]
         @workspace_info_cache = {
-          expires: Time.new - 120
+          expires: Time.now - 120
         }
       end
 
       def expire_store_information
         @doc_mutex.synchronize do
-          @workspace_info_cache[:expires] = Time.new - 120
+          @workspace_info_cache[:expires] = Time.now - 120
         end
       end
 
@@ -208,7 +208,7 @@ module PuppetLanguageServer
       end
 
       def store_details
-        return @workspace_info_cache unless @workspace_info_cache[:never_expires] || @workspace_info_cache[:expires] < Time.new
+        return @workspace_info_cache unless @workspace_info_cache[:never_expires] || @workspace_info_cache[:expires] < Time.now
 
         # TTL has expired, time to calculate the document store details
 
@@ -232,7 +232,7 @@ module PuppetLanguageServer
             new_cache[:has_environmentconf] = file_exist?(File.join(root_path, 'environment.conf'))
           end
         end
-        new_cache[:expires] = Time.new + WORKSPACE_CACHE_TTL_SECONDS
+        new_cache[:expires] = Time.now + WORKSPACE_CACHE_TTL_SECONDS
 
         @doc_mutex.synchronize do
           @workspace_info_cache = new_cache

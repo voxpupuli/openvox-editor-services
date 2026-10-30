@@ -259,7 +259,7 @@ module PuppetLanguageServerSidecar
       def all_object_info
         {
           class: [
-            { relative_dir: 'manifests',                   glob: '/**/*.pp' } # Pretty much everything in most modules
+            { relative_dir: 'manifests', glob: '/**/*.pp' } # Pretty much everything in most modules
           ],
           datatype: [
             { relative_dir: 'lib/puppet/datatypes',        glob: '/**/*.rb' }, # Custom Data Types
@@ -271,7 +271,7 @@ module PuppetLanguageServerSidecar
             { relative_dir: 'lib/puppet/parser/functions', glob: '/**/*.rb' }  # Contains functions written in Ruby for the legacy Puppet::Parser::Functions API
           ],
           type: [
-            { relative_dir: 'lib/puppet/type',             glob: '/{,file/}*.rb' } # Contains Puppet resource types. Resource types like `file` can live in subdirs, hence the glob
+            { relative_dir: 'lib/puppet/type', glob: '/{,file/}*.rb' } # Contains Puppet resource types. Resource types like `file` can live in subdirs, hence the glob
           ]
         }
       end

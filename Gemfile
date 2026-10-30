@@ -9,7 +9,9 @@ source ENV['GEM_SOURCE'] || "https://rubygems.org"
 # -=-=-=-=-=- WARNING -=-=-=-=-=-
 
 group :development do
-  gem 'json', "< 3.1.1",                 :require => false
+  # JSON 3 support requires keyword options in the sidecar/OpenVox JSON loaders
+  # and replacing JSON::PRETTY_STATE_PROTOTYPE in OpenVox's JSON dumper.
+  gem 'json', "< 3.0",                   :require => false
   gem 'openfact', '>= 5.1', '< 7',        :require => false
   gem 'openvox-strings', '~> 7.1',        :require => false
   gem 'puppetfile-resolver', '~> 0.6.2',  :require => false
@@ -25,7 +27,7 @@ group :development do
   gem 'yard', '~> 0.9.28',                :require => false
   gem "rubocop-performance", '~> 1.27.0', :require => false
   gem "rubocop-rspec", '~> 3.10.0',       :require => false
-  gem "rubocop", '~> 1.89.0',             :require => false
+  gem "rubocop", '~> 1.92.0',             :require => false
 
   if ENV['OPENVOX_GEM_VERSION']
     gem 'openvox', ENV['OPENVOX_GEM_VERSION'], :require => false
