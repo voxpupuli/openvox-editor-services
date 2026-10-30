@@ -54,7 +54,8 @@ module OpenVoxAgentRubygems
 
   def self.packaged_agent_ruby?
     [RbConfig::CONFIG['prefix'], Gem.default_dir].compact.any? do |path|
-      normalized_path(path).include?('/puppetlabs/puppet')
+      normalized = normalized_path(path)
+      normalized.include?('/puppetlabs/puppet') || normalized.include?('/puppet labs/puppet')
     end
   end
   private_class_method :packaged_agent_ruby?

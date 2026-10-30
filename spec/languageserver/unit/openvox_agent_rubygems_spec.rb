@@ -39,28 +39,37 @@ describe OpenVoxAgentRubygems do
       expect(ENV).not_to include('GEM_PATH')
     end
 
-    it 'keeps bundled extension gems while adding the packaged OpenVox Agent gem paths' do
-      ENV['GEM_HOME'] = '/extension/vendor/languageserver/gems'
-      ENV['GEM_PATH'] = '/extension/vendor/languageserver/gems'
+    [
+      '/opt/puppetlabs/puppet',
+      'C:/Program Files/Puppet Labs/Puppet/puppet',
+      'C:\Program Files\Puppet Labs\Puppet\puppet',
+    ].each do |agent_prefix|
+      agent_gem_dir = "#{agent_prefix}/lib/ruby/gems/4.0.0"
+      agent_vendor_dir = "#{agent_prefix}/lib/ruby/vendor_gems"
 
-      allow(RbConfig::CONFIG).to receive(:[]).with('prefix').and_return('/opt/puppetlabs/puppet')
-      allow(Gem).to receive(:default_dir).and_return('/opt/puppetlabs/puppet/lib/ruby/gems/3.2.0').at_least(:once)
-      allow(Gem).to receive(:path).and_return(
-        ['/extension/vendor/languageserver/gems'],
-        ['/opt/puppetlabs/puppet/lib/ruby/gems/3.2.0', '/opt/puppetlabs/puppet/lib/ruby/vendor_gems'],
-        [],
-      )
-      expect(Gem).to receive(:clear_paths)
-      expect(Gem).to receive(:use_paths).with(
-        '/extension/vendor/languageserver/gems',
-        [
+      it "keeps bundled extension gems while adding agent gem paths for #{agent_prefix}" do
+        ENV['GEM_HOME'] = '/extension/vendor/languageserver/gems'
+        ENV['GEM_PATH'] = '/extension/vendor/languageserver/gems'
+
+        allow(RbConfig::CONFIG).to receive(:[]).with('prefix').and_return(agent_prefix)
+        allow(Gem).to receive(:default_dir).and_return(agent_gem_dir).at_least(:once)
+        allow(Gem).to receive(:path).and_return(
+          ['/extension/vendor/languageserver/gems'],
+          [agent_gem_dir, agent_vendor_dir],
+          [],
+        )
+        expect(Gem).to receive(:clear_paths)
+        expect(Gem).to receive(:use_paths).with(
           '/extension/vendor/languageserver/gems',
-          '/opt/puppetlabs/puppet/lib/ruby/gems/3.2.0',
-          '/opt/puppetlabs/puppet/lib/ruby/vendor_gems',
-        ],
-      )
+          [
+            '/extension/vendor/languageserver/gems',
+            agent_gem_dir,
+            agent_vendor_dir,
+          ],
+        )
 
-      expect(described_class.activate!).to be(true)
+        expect(described_class.activate!).to be(true)
+      end
     end
 
     it 'restores remembered gem paths after RubyGems activation changes them' do
