@@ -17,7 +17,7 @@ group :development do
   gem 'rspec', '>= 3.2',                  :require => false
   gem 'rubocop-capybara', '~> 3.0.0',     :require => false
   gem 'rubocop-factory_bot', '~> 2.28.0', :require => false
-  gem 'rubocop-rspec_rails', '~> 2.32.0', :require => false
+  gem 'rubocop-rspec_rails', '~> 2.33.0', :require => false
   gem 'simplecov-console',                :require => false
   gem 'simplecov',                        :require => false
   gem 'syslog', '~> 0.4',                 :require => false unless Gem.win_platform?
