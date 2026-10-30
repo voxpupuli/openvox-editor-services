@@ -3,8 +3,6 @@
 require 'socket'
 require 'openssl'
 
-# frozen_string_literal: true
-
 require 'puppet_editor_services/logging'
 require 'puppet_editor_services/server/base'
 require 'puppet_editor_services/connection/tcp'
@@ -340,9 +338,8 @@ module PuppetEditorServices
       # @api private
       def clear_connections
         # Using a SymbolProc here does not work
-        # rubocop:disable Style/SymbolProc
+        # rubocop:disable-next Style/SymbolProc
         self.class.c_locker.synchronize { self.class.io_connection_dic.delete_if { |c| c.closed? } }
-        # rubocop:enable Style/SymbolProc
       end
     end
   end
