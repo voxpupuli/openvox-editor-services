@@ -55,7 +55,7 @@ jobs:
   release-to-github:
     needs: build-release
     name: Release to GitHub
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       packages: write # publish to rubygems.pkg.github.com
     steps:
@@ -72,7 +72,7 @@ jobs:
   release-to-rubygems:
     needs: build-release
     name: Release gem to rubygems.org
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     environment: release # recommended by rubygems.org
     permissions:
       id-token: write # rubygems.org authentication
@@ -90,7 +90,7 @@ jobs:
 
   release-verification:
     name: Check that all releases are done
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read # minimal permissions that we have to grant
     needs:
