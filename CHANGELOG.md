@@ -1,8 +1,26 @@
 # Changelog
 
-## [3.1.1](https://github.com/voxpupuli/openvox-editor-services/tree/3.1.1) (2026-07-18)
+## [3.1.2](https://github.com/voxpupuli/openvox-editor-services/tree/3.1.2) (2026-10-30)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.0...3.1.1)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.1...3.1.2)
+
+**Fixed bugs:**
+
+- fix: recognize packaged OpenVox Agent Ruby on Windows [\#71](https://github.com/voxpupuli/openvox-editor-services/pull/71) ([rwaffen](https://github.com/rwaffen))
+- fix: Rubocop Lint/\* Offences  [\#50](https://github.com/voxpupuli/openvox-editor-services/pull/50) ([rwaffen](https://github.com/rwaffen))
+- fix: Incomplete string escaping or encoding [\#49](https://github.com/voxpupuli/openvox-editor-services/pull/49) ([rwaffen](https://github.com/rwaffen))
+- fix: handle security/code-scanning/1 by using File instead of IO [\#47](https://github.com/voxpupuli/openvox-editor-services/pull/47) ([rwaffen](https://github.com/rwaffen))
+
+**Merged pull requests:**
+
+- docs: update readme to reflect the state of the gem [\#74](https://github.com/voxpupuli/openvox-editor-services/pull/74) ([rwaffen](https://github.com/rwaffen))
+- ci: merge method is set by merge\_group automatically [\#46](https://github.com/voxpupuli/openvox-editor-services/pull/46) ([rwaffen](https://github.com/rwaffen))
+- test: try merge queue [\#45](https://github.com/voxpupuli/openvox-editor-services/pull/45) ([rwaffen](https://github.com/rwaffen))
+- add some meta updates: switch to renovate, remove pr template, extend release docs [\#17](https://github.com/voxpupuli/openvox-editor-services/pull/17) ([rwaffen](https://github.com/rwaffen))
+
+## [v3.1.1](https://github.com/voxpupuli/openvox-editor-services/tree/v3.1.1) (2026-07-18)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.0...v3.1.1)
 
 **Fixed bugs:**
 
@@ -171,15 +189,15 @@
 
 ## [0.7.2](https://github.com/voxpupuli/openvox-editor-services/tree/0.7.2) (2017-10-27)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.7.1...0.7.2)
-
-## [0.7.1](https://github.com/voxpupuli/openvox-editor-services/tree/0.7.1) (2017-09-20)
-
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.7.0...0.7.1)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.7.0...0.7.2)
 
 ## [0.7.0](https://github.com/voxpupuli/openvox-editor-services/tree/0.7.0) (2017-09-20)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.6.0...0.7.0)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.7.1...0.7.0)
+
+## [0.7.1](https://github.com/voxpupuli/openvox-editor-services/tree/0.7.1) (2017-09-20)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.6.0...0.7.1)
 
 ## [0.6.0](https://github.com/voxpupuli/openvox-editor-services/tree/0.6.0) (2017-07-21)
 
@@ -195,15 +213,15 @@
 
 ## [0.4.5](https://github.com/voxpupuli/openvox-editor-services/tree/0.4.5) (2017-06-16)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.4.2...0.4.5)
-
-## [0.4.2](https://github.com/voxpupuli/openvox-editor-services/tree/0.4.2) (2017-06-16)
-
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.4.0...0.4.2)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.4.0...0.4.5)
 
 ## [0.4.0](https://github.com/voxpupuli/openvox-editor-services/tree/0.4.0) (2017-06-16)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/804559931cdefe5364e463ee904f68c1a8d7ed39...0.4.0)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/0.4.2...0.4.0)
+
+## [0.4.2](https://github.com/voxpupuli/openvox-editor-services/tree/0.4.2) (2017-06-16)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/804559931cdefe5364e463ee904f68c1a8d7ed39...0.4.2)
 
 
 
