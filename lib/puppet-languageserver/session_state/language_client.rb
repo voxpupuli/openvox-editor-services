@@ -9,7 +9,7 @@ module PuppetLanguageServer
       attr_reader :format_on_type
 
       DEFAULT_FORMAT_ON_TYPE_ENABLE = true
-      DEFAULT_FORMAT_ON_TYPE_FILESIZE_LIMIT = 4096
+      DEFAULT_FORMAT_ON_TYPE_FILESIZE_LIMIT = 16_384
       DEFAULT_FOLDING_RANGE_ENABLE = true         # Default is true as per VS Code
       DEFAULT_FOLDING_RANGE_SHOW_LAST_LINE = true # Default is true as per VS Code
       DEFAULT_VALIDATE_RESOLVE_PUPPETFILES = true
