@@ -8,7 +8,7 @@ module PuppetLanguageServer
       # Client settings
       attr_reader :format_on_type
 
-      DEFAULT_FORMAT_ON_TYPE_ENABLE = false
+      DEFAULT_FORMAT_ON_TYPE_ENABLE = true
       DEFAULT_FORMAT_ON_TYPE_FILESIZE_LIMIT = 4096
       DEFAULT_FOLDING_RANGE_ENABLE = true         # Default is true as per VS Code
       DEFAULT_FOLDING_RANGE_SHOW_LAST_LINE = true # Default is true as per VS Code
@@ -31,7 +31,7 @@ module PuppetLanguageServer
         # Initial state. Not always the same as defaults
         @folding_range = false
         @folding_range_show_last_line = DEFAULT_FOLDING_RANGE_SHOW_LAST_LINE
-        @format_on_type = false
+        @format_on_type = DEFAULT_FORMAT_ON_TYPE_ENABLE
         @format_on_type_filesize_limit = DEFAULT_FORMAT_ON_TYPE_FILESIZE_LIMIT
         @use_puppetfile_resolver = DEFAULT_VALIDATE_RESOLVE_PUPPETFILES
       end
@@ -42,7 +42,7 @@ module PuppetLanguageServer
 
       def send_configuration_request
         params = LSP::ConfigurationParams.new.from_h!('items' => [])
-        params.items << LSP::ConfigurationItem.new.from_h!('section' => 'puppet')
+        params.items << LSP::ConfigurationItem.new.from_h!('section' => 'openvox')
 
         message_handler.protocol.send_client_request('workspace/configuration', params)
         true
@@ -54,7 +54,7 @@ module PuppetLanguageServer
 
       def parse_lsp_configuration_settings!(settings = {})
         # format on type enabled
-        value = to_boolean(safe_hash_traverse(settings, 'puppet', 'editorService', 'formatOnType', 'enable'), DEFAULT_FORMAT_ON_TYPE_ENABLE)
+        value = to_boolean(safe_hash_traverse(settings, 'openvox', 'editorService', 'formatOnType', 'enable'), DEFAULT_FORMAT_ON_TYPE_ENABLE)
         unless value == @format_on_type # Ummm no.
           # Is dynamic registration available?
           if client_capability('textDocument', 'onTypeFormatting', 'dynamicRegistration') == true
@@ -67,18 +67,18 @@ module PuppetLanguageServer
           @format_on_type = value
         end
         # format on type file size
-        @format_on_type_filesize_limit = to_integer(safe_hash_traverse(settings, 'puppet', 'editorService', 'formatOnType', 'maxFileSize'), DEFAULT_FORMAT_ON_TYPE_FILESIZE_LIMIT, 0)
+        @format_on_type_filesize_limit = to_integer(safe_hash_traverse(settings, 'openvox', 'editorService', 'formatOnType', 'maxFileSize'), DEFAULT_FORMAT_ON_TYPE_FILESIZE_LIMIT, 0)
 
         # use puppetfile resolver
-        @use_puppetfile_resolver = to_boolean(safe_hash_traverse(settings, 'puppet', 'validate', 'resolvePuppetfiles'), DEFAULT_VALIDATE_RESOLVE_PUPPETFILES)
+        @use_puppetfile_resolver = to_boolean(safe_hash_traverse(settings, 'openvox', 'validate', 'resolvePuppetfiles'), DEFAULT_VALIDATE_RESOLVE_PUPPETFILES)
 
         # folding range enabled
-        value = to_boolean(safe_hash_traverse(settings, 'puppet', 'editorService', 'foldingRange', 'enable'), DEFAULT_FOLDING_RANGE_ENABLE) && PuppetLanguageServer::ServerCapabilites.folding_provider_supported?
+        value = to_boolean(safe_hash_traverse(settings, 'openvox', 'editorService', 'foldingRange', 'enable'), DEFAULT_FOLDING_RANGE_ENABLE) && PuppetLanguageServer::ServerCapabilites.folding_provider_supported?
         unless value == @folding_range # Ummm no.
           # Is dynamic registration available?
           if client_capability('textDocument', 'foldingRange', 'dynamicRegistration') == true
             if value
-              register_capability('textDocument/foldingRange', PuppetLanguageServer::ServerCapabilites.document_on_type_formatting_options)
+              register_capability('textDocument/foldingRange', PuppetLanguageServer::ServerCapabilites.folding_range_provider_options)
             else
               unregister_capability('textDocument/foldingRange')
             end
@@ -86,7 +86,7 @@ module PuppetLanguageServer
           @folding_range = value
         end
         # folding range last line display
-        @folding_range_show_last_line = to_boolean(safe_hash_traverse(settings, 'puppet', 'editorService', 'foldingRange', 'showLastLine'), DEFAULT_FOLDING_RANGE_SHOW_LAST_LINE)
+        @folding_range_show_last_line = to_boolean(safe_hash_traverse(settings, 'openvox', 'editorService', 'foldingRange', 'showLastLine'), DEFAULT_FOLDING_RANGE_SHOW_LAST_LINE)
       end
 
       def capability_registrations(method)
