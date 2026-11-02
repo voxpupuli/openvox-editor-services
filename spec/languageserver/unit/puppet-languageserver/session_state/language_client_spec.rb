@@ -304,7 +304,7 @@ describe 'PuppetLanguageServer::SessionState::LanguageClient' do
 
   describe '#format_on_type' do
     it 'should be false by default' do
-      expect(subject.format_on_type).to eq(false)
+      expect(subject.format_on_type).to eq(true)
     end
   end
 
@@ -334,7 +334,7 @@ describe 'PuppetLanguageServer::SessionState::LanguageClient' do
 
     it 'should include the puppet settings' do
       subject.send_configuration_request
-      expect(mock_connection.buffer).to include('{"section":"puppet"}')
+      expect(mock_connection.buffer).to include('{"section":"openvox"}')
     end
   end
 
@@ -343,9 +343,9 @@ describe 'PuppetLanguageServer::SessionState::LanguageClient' do
   # end
 
   describe '#parse_lsp_configuration_settings!' do
-    describe 'puppet.editorService.formatOnType.enable' do
+    describe 'openvox.editorService.formatOnType.enable' do
       let(:settings) do
-        { 'puppet' => {
+        { 'openvox' => {
             'editorService' => {
               'formatOnType' => {
                 'enable' => setting_value
@@ -363,9 +363,9 @@ describe 'PuppetLanguageServer::SessionState::LanguageClient' do
         'textDocument/onTypeFormatting'
     end
 
-    describe 'puppet.editorService.foldingRange.enable' do
+    describe 'openvox.editorService.foldingRange.enable' do
       let(:settings) do
-        { 'puppet' => {
+        { 'openvox' => {
             'editorService' => {
               'foldingRange' => {
                 'enable' => setting_value

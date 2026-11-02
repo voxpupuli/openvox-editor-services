@@ -18,12 +18,12 @@ class EditorClient
 
   def default_client_settings
     {
-      'puppet' => {
+      'openvox' => {
         'editorService'    => {
           'enable'        => true,
           'debugFilePath' => '',
           'featureFlags'  => [],
-          'formatOnType'  => { 'enable' => false },
+          'formatOnType'  => { 'enable' => true },
           'hover'         => { 'showMetadataInfo' => true },
           'loglevel'      => 'normal',
           'protocol'      => 'tcp', # Not the default but that's what we use in testing

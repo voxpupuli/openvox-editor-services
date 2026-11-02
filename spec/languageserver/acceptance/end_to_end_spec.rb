@@ -228,7 +228,7 @@ describe 'End to End Testing' do
 
       # OnType Formatting
       #   Enable ontype formatting
-      @client.client_settings['puppet']['editorService']['formatOnType']['enable'] = true
+      @client.client_settings['openvox']['editorService']['formatOnType']['enable'] = true
       @client.send_client_settings
       #   Wait for the settings to take effect
       sleep(1)
@@ -239,7 +239,7 @@ describe 'End to End Testing' do
       #   Expect something to be returned
       expect(result['result']).not_to be_nil
       #   Disable ontype formatting
-      @client.client_settings['puppet']['editorService']['formatOnType']['enable'] = false
+      @client.client_settings['openvox']['editorService']['formatOnType']['enable'] = false
       @client.send_client_settings
       #   Wait for the settings to take effect
       sleep(1)
