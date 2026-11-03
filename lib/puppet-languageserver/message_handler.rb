@@ -178,7 +178,7 @@ module PuppetLanguageServer
       file_uri = json_rpc_message.params['textDocument']['uri']
       case documents.document_type(file_uri)
       when :manifest
-        PuppetLanguageServer::Manifest::FoldingProvider.instance.folding_ranges(documents.document_tokens(file_uri))
+        PuppetLanguageServer::Manifest::FoldingProvider.instance.folding_ranges(documents.document_tokens(file_uri), language_client.folding_range_show_last_line)
       else
         raise "Unable to provide folding ranages on #{file_uri}"
       end

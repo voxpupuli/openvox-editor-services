@@ -31,7 +31,7 @@ module PuppetLanguageServer
         # Initial state. Not always the same as defaults
         @folding_range = false
         @folding_range_show_last_line = DEFAULT_FOLDING_RANGE_SHOW_LAST_LINE
-        @format_on_type = DEFAULT_FORMAT_ON_TYPE_ENABLE
+        @format_on_type = false
         @format_on_type_filesize_limit = DEFAULT_FORMAT_ON_TYPE_FILESIZE_LIMIT
         @use_puppetfile_resolver = DEFAULT_VALIDATE_RESOLVE_PUPPETFILES
       end

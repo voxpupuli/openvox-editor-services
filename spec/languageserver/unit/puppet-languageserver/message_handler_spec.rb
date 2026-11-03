@@ -980,6 +980,64 @@ describe 'PuppetLanguageServer::MessageHandler' do
         end
       end
     end
+
+    # textDocument/foldingRange - https://microsoft.github.io/language-server-protocol/specification#textDocument_foldingRange
+    describe '.request_textdocument_foldingrange' do
+      let(:request_rpc_method) { 'textDocument/foldingRange' }
+      let(:file_uri) { MANIFEST_FILENAME }
+      let(:file_content) { "class foo {\n}\n" }
+      let(:show_last_line) { true }
+      let(:request_params) { {
+        'textDocument' => {
+          'uri' => file_uri
+        }
+      } }
+      let(:provider) { PuppetLanguageServer::Manifest::FoldingProvider.new }
+
+      before(:each) do
+        subject.documents.clear
+        subject.documents.set_document(file_uri, file_content, 0)
+        allow(subject.documents).to receive(:document_tokens).with(file_uri).and_return([])
+      end
+
+      context 'with client.folding_range set to false' do
+        before(:each) do
+          allow(subject.language_client).to receive(:folding_range).and_return(false)
+        end
+
+        it 'should reply with nil' do
+          expect(subject.request_textdocument_foldingrange(connection_id, request_message)).to be_nil
+        end
+      end
+
+      context 'with client.folding_range set to true' do
+        before(:each) do
+          allow(subject.language_client).to receive(:folding_range).and_return(true)
+          allow(subject.language_client).to receive(:folding_range_show_last_line).and_return(show_last_line)
+          allow(PuppetLanguageServer::Manifest::FoldingProvider).to receive(:instance).and_return(provider)
+        end
+
+        it 'should pass the showLastLine setting to the folding provider' do
+          expect(provider).to receive(:folding_ranges)
+            .with([], show_last_line)
+            .and_return('something')
+
+          subject.request_textdocument_foldingrange(connection_id, request_message)
+        end
+
+        context 'and showLastLine is disabled' do
+          let(:show_last_line) { false }
+
+          it 'should pass the disabled setting to the folding provider' do
+            expect(provider).to receive(:folding_ranges)
+              .with([], false)
+              .and_return('something')
+
+            subject.request_textdocument_foldingrange(connection_id, request_message)
+          end
+        end
+      end
+    end
   end
 
   context 'When receiving a notification' do
