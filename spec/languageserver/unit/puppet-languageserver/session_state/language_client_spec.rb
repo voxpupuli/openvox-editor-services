@@ -303,8 +303,8 @@ describe 'PuppetLanguageServer::SessionState::LanguageClient' do
   end
 
   describe '#format_on_type' do
-    it 'should be false by default' do
-      expect(subject.format_on_type).to eq(true)
+    it 'should start disabled so the first configuration pull can register it' do
+      expect(subject.format_on_type).to eq(false)
     end
   end
 
