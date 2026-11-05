@@ -6,8 +6,13 @@ module PuppetLanguageServer
       line_offset = line_offsets[line_num]
       raise if line_offset.nil?
 
+      start_offset = line_offset + char_num
+      # Never remove more characters than exist before the removal point, as a
+      # negative slice length would return nil and break string concatenation.
+      num_chars_to_remove = num_chars_to_remove.clamp(0, start_offset)
+
       # Remove the offending character
-      content.slice(0, line_offset + char_num - num_chars_to_remove) + content.slice(line_offset + char_num, content.length - num_chars_to_remove)
+      content.slice(0, start_offset - num_chars_to_remove) + content.slice(start_offset, content.length - num_chars_to_remove)
     end
 
     def self.remove_char_at(content, line_offsets, line_num, char_num)
@@ -86,15 +91,10 @@ module PuppetLanguageServer
         when :remove_word
           next if line_num.zero? && char_num.zero?
 
-          next_char = get_char_at(content, line_offsets, line_num, char_num)
+          start_char = char_num
+          start_char -= 1 while start_char.positive? && /[[:word:]]/ =~ get_char_at(content, line_offsets, line_num, start_char)
 
-          while /[[:word:]]/ =~ next_char
-            move_offset -= 1
-            next_char = get_char_at(content, line_offsets, line_num, char_num + move_offset)
-
-            break if char_num + move_offset < 0
-          end
-
+          move_offset = start_char - char_num
           new_content = remove_chars_starting_at(content, line_offsets, line_num, char_num, -move_offset)
         when :try_quotes
           # Perhaps try inserting double quotes.  Useful in empty arrays or during variable assignment

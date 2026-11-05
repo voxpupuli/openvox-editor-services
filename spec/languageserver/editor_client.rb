@@ -225,10 +225,10 @@ class EditorClient
     })
   end
 
-  def did_open_notification(file_path, version)
+  def did_open_notification(file_path, version, content = nil)
     uri = PuppetLanguageServer::UriHelper.build_file_uri(file_path)
     document_list[uri] = {
-      :content => File.open(file_path, 'rb:UTF-8') { |f| f.read },
+      :content => content.nil? ? File.open(file_path, 'rb:UTF-8') { |f| f.read } : content,
       :version => version,
       :lang    => 'puppet',
     }

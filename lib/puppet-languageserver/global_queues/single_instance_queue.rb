@@ -115,6 +115,9 @@ module PuppetLanguageServer
           begin
             # When running async (i.e. from a thread swallow any output)
             _result = execute_job(work_item)
+          rescue SystemExit => e
+            PuppetLanguageServer.log_message(:error, "#{self.class} Thread: Job #{work_item.key} attempted to exit. #{e}")
+            nil
           rescue StandardError => e
             PuppetLanguageServer.log_message(:error, "#{self.class} Thread: Error running job #{work_item.key}. #{e}\n#{e.backtrace}")
             nil
