@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'spec_editor_client'
 require 'open3'
+require 'tmpdir'
 
 #                    (X)        = Tested
 #                    ( ) or (?) = Not yet tested
@@ -258,6 +259,93 @@ describe 'End to End Testing' do
       expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
       result = @client.data_from_request_seq_id(@client.current_seq_id)
       #   Expect something to be returned
+      expect(result['result']).to be_nil
+
+      # Exit process
+      @client.clear_messages!
+      @client.send_data(@client.exit_notification)
+      expect(@client).to close_within_timeout(5)
+    end
+  end
+
+  context 'Processing an incomplete class declaration' do
+    let(:workspace) { nil }
+    let(:manifest_file) { File.join($fixtures_dir, 'end_to_end_empty_manifest.pp') }
+    let(:manifest_uri) { path_to_uri(manifest_file) }
+
+    around(:each) do |example|
+      original_spec_log = ENV['SPEC_LOG']
+      @server_log_file = File.join(Dir.tmpdir, "openvox-acceptance-#{Process.pid}-#{rand(100_000)}.log")
+      ENV['SPEC_LOG'] = @server_log_file
+      example.run
+    ensure
+      ENV['SPEC_LOG'] = original_spec_log
+      begin
+        File.delete(@server_log_file) if !@server_log_file.nil? && File.exist?(@server_log_file)
+      rescue StandardError
+        # Ignore cleanup errors, especially if the server still has the log file open
+      end
+    end
+
+    it 'survives validation and provides completion while a class is being typed' do
+      # initialize_request
+      @client.send_data(@client.initialize_request(@client.next_seq_id, workspace))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+
+      # initialized event
+      @client.send_data(@client.initialized_notification)
+
+      # Send the client settings
+      @client.send_client_settings
+
+      # Wait for the language server to finish loading the Puppet information
+      @client.clear_messages!
+      @client.wait_for_puppet_loading(120)
+
+      # Open an empty manifest
+      @client.clear_messages!
+      @client.send_data(@client.did_open_notification(manifest_file, 1, ''))
+      expect(@client).to receive_notification_within_timeout(['textDocument/publishDiagnostics', 5])
+
+      # Type the class keyword
+      @client.clear_messages!
+      @client.send_data(@client.did_change_notification(manifest_file, 'class'))
+      # Wait for a diagnostics response, which proves validation actually ran
+      expect(@client).to receive_notification_within_timeout(['textDocument/publishDiagnostics', 5])
+      result = @client.data_from_notification_name('textDocument/publishDiagnostics')
+      expect(result['params']['uri']).to match(/\/end_to_end_empty_manifest.pp$/)
+
+      # Completion at the end of the bare class keyword
+      @client.clear_messages!
+      @client.send_data(@client.completion_request(@client.next_seq_id, manifest_uri, 0, 5))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+      result = @client.data_from_request_seq_id(@client.current_seq_id)
+      expect(result['error']).to be_nil
+      # The completion list may be empty, but the request must succeed without an internal error
+      expect(result['result']['items']).to be_an(Array)
+      expect(File.read(@server_log_file)).not_to include('(textDocument/completion)')
+
+      # Change the document through the other incomplete declaration variants
+      ['class ', 'class f', 'class foo'].each do |content|
+        @client.clear_messages!
+        @client.send_data(@client.did_change_notification(manifest_file, content))
+        # Wait for diagnostics so validation finishes before the next change
+        expect(@client).to receive_notification_within_timeout(['textDocument/publishDiagnostics', 5])
+      end
+
+      # The server must still be responsive after validating every variant
+      @client.clear_messages!
+      @client.send_data(@client.puppet_getversion_request(@client.next_seq_id))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+      result = @client.data_from_request_seq_id(@client.current_seq_id)
+      expect(result['error']).to be_nil
+      expect(result['result']).not_to be_nil
+
+      # Start shutdown process
+      @client.clear_messages!
+      @client.send_data(@client.shutdown_request(@client.next_seq_id))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+      result = @client.data_from_request_seq_id(@client.current_seq_id)
       expect(result['result']).to be_nil
 
       # Exit process

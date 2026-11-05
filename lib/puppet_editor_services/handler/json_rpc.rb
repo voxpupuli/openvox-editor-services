@@ -65,7 +65,7 @@ module PuppetEditorServices
                 request_message, send(method_name, protocol.connection.id, request_message)
               )
             )
-          rescue StandardError => e
+          rescue StandardError, SystemExit => e
             unhandled_exception(e, source: :request, message: request_message)
           end
           return true
@@ -87,7 +87,7 @@ module PuppetEditorServices
         if respond_to?(method_name.intern)
           begin
             send(method_name, protocol.connection.id, notification_message)
-          rescue StandardError => e
+          rescue StandardError, SystemExit => e
             unhandled_exception(e, source: :notification, message: notification_message)
           end
           return true
@@ -114,7 +114,7 @@ module PuppetEditorServices
         if respond_to?(method_name.intern)
           begin
             send(method_name, protocol.connection.id, response_message, original_request)
-          rescue StandardError => e
+          rescue StandardError, SystemExit => e
             unhandled_exception(e, source: :response, message: response_message)
           end
           return true

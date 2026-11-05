@@ -18,10 +18,17 @@ module PuppetLanguageServer
         init_puppet_lint(session_state.documents.store_root_path, ['--fix', '--relative'])
 
         linter = PuppetLint::Checks.new
-        problems = linter.run(lint_filename(document_uri), content)
+        lint_aborted = false
+        problems = begin
+          linter.run(lint_filename(document_uri), content)
+        rescue SystemExit
+          PuppetLanguageServer.log_message(:error, '(fix_validate_errors) puppet-lint aborted')
+          lint_aborted = true
+          nil
+        end
         problems_fixed = problems.nil? ? 0 : problems.count { |item| item[:kind] == :fixed }
 
-        [problems_fixed, linter.manifest]
+        [problems_fixed, lint_aborted ? content : linter.manifest]
       end
 
       def self.validate(session_state, content, options = {})
@@ -38,7 +45,12 @@ module PuppetLanguageServer
 
         begin
           linter = PuppetLint::Checks.new
-          problems = linter.run(lint_filename(options[:document_uri]), content)
+          problems = begin
+            linter.run(lint_filename(options[:document_uri]), content)
+          rescue SystemExit
+            PuppetLanguageServer.log_message(:error, '(textDocument/validation) puppet-lint aborted')
+            nil
+          end
           unless problems.nil?
             problems.each do |problem|
               # Syntax errors are better handled by the puppet parser, not puppet lint
