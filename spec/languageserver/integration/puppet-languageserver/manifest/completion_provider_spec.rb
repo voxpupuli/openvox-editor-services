@@ -620,10 +620,10 @@ EOT
           expect(result.documentation).to match(/.+/)
         end
 
-        it 'should return a text literal with the parameter defintion' do
+        it 'should return a snippet with the parameter definition and the cursor in the value position' do
           result = subject.resolve(session_state, @resolve_request)
-          expect(result.insertText).to match(/.+ => /)
-          expect(result.insertTextFormat).to be_nil
+          expect(result.insertText).to eq('name => ${1},$0')
+          expect(result.insertTextFormat).to eq(LSP::InsertTextFormat::SNIPPET)
         end
       end
     end
@@ -666,10 +666,10 @@ EOT
           expect(result.documentation).to match(/.+/)
         end
 
-        it 'should return a text literal with the property defintion' do
+        it 'should return a snippet with the property definition and the cursor in the value position' do
           result = subject.resolve(session_state, @resolve_request)
-          expect(result.insertText).to match(/.+ => /)
-          expect(result.insertTextFormat).to be_nil
+          expect(result.insertText).to eq('ensure => ${1},$0')
+          expect(result.insertTextFormat).to eq(LSP::InsertTextFormat::SNIPPET)
         end
       end
     end
