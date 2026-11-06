@@ -3,6 +3,7 @@
 require 'puppet-languageserver/global_queues/single_instance_queue'
 require 'puppet_editor_services/server'
 require 'open3'
+require 'rbconfig'
 
 module PuppetLanguageServer
   module GlobalQueues
@@ -37,7 +38,10 @@ module PuppetLanguageServer
 
         sidecar_path = File.expand_path(File.join(__dir__, '..', '..', '..', 'openvox-languageserver-sidecar'))
         args = ['--action', job_object.action].concat(job_object.additional_args).concat(sidecar_args_from_connection(connection))
-        cmd = ['ruby', sidecar_path].concat(args)
+        # Use the same Ruby interpreter as the language server. Relying on a bare
+        # 'ruby' from PATH can pick up a different runtime which cannot see the
+        # Puppet agent's gems and types.
+        cmd = [RbConfig.ruby, sidecar_path].concat(args)
         PuppetLanguageServer.log_message(:debug, "SidecarQueue Thread: Running sidecar #{cmd}")
         stdout, stderr, status = run_sidecar(cmd)
         PuppetLanguageServer.log_message(:warning, "SidecarQueue Thread: Calling sidecar with #{args.join(' ')} returned exitcode #{status.exitstatus}, #{stderr}")
