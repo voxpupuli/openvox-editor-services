@@ -1,8 +1,21 @@
 # Changelog
 
-## [3.1.2](https://github.com/voxpupuli/openvox-editor-services/tree/3.1.2) (2026-10-30)
+## [3.2.0](https://github.com/voxpupuli/openvox-editor-services/tree/3.2.0) (2026-11-06)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.1...3.1.2)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.2...3.2.0)
+
+**Implemented enhancements:**
+
+- honor client editor settings for formatting and folding [\#81](https://github.com/voxpupuli/openvox-editor-services/pull/81) ([jay7x](https://github.com/jay7x))
+- Use `openvox` namespace for settings [\#80](https://github.com/voxpupuli/openvox-editor-services/pull/80) ([jay7x](https://github.com/jay7x))
+
+**Fixed bugs:**
+
+- fix: prevent puppet-lint failures from crashing the language server [\#83](https://github.com/voxpupuli/openvox-editor-services/pull/83) ([jay7x](https://github.com/jay7x))
+
+## [v3.1.2](https://github.com/voxpupuli/openvox-editor-services/tree/v3.1.2) (2026-10-31)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.1...v3.1.2)
 
 **Fixed bugs:**
 
