@@ -628,6 +628,28 @@ EOT
       end
     end
 
+    context 'when resolving a resource_parameter request in an aligned resource' do
+      let(:content) { <<-EOT
+        user { 'Alice':
+          ensure => 'present',
+
+        }
+      EOT
+      }
+      let(:line_num) { 2 }
+      let(:char_num) { 0 }
+
+      before(:each) do
+        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @resolve_request = retrieve_completion_response('name', LSP::CompletionItemKind::PROPERTY)
+      end
+
+      it 'should align the hashrocket with the longest existing attribute' do
+        result = subject.resolve(session_state, @resolve_request)
+        expect(result.insertText).to eq('name   => ${1},$0')
+      end
+    end
+
     context 'when resolving a resource_property request' do
       let(:content) { <<-EOT
         user { 'Alice':
@@ -671,6 +693,28 @@ EOT
           expect(result.insertText).to eq('ensure => ${1},$0')
           expect(result.insertTextFormat).to eq(LSP::InsertTextFormat::SNIPPET)
         end
+      end
+    end
+
+    context 'when resolving a resource_property request in an aligned resource' do
+      let(:content) { <<-EOT
+        user { 'Alice':
+          comment => 'Alice',
+
+        }
+      EOT
+      }
+      let(:line_num) { 2 }
+      let(:char_num) { 0 }
+
+      before(:each) do
+        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @resolve_request = retrieve_completion_response('ensure', LSP::CompletionItemKind::PROPERTY)
+      end
+
+      it 'should align the hashrocket with the longest existing attribute' do
+        result = subject.resolve(session_state, @resolve_request)
+        expect(result.insertText).to eq('ensure  => ${1},$0')
       end
     end
 
