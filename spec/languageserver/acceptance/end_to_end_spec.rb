@@ -432,7 +432,8 @@ describe 'End to End Testing' do
       expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
       result = @client.data_from_request_seq_id(@client.current_seq_id)
       expect(result['error']).to be_nil
-      expect(result.dig('result', 'insertText')).to eq('owner => ,')
+      expect(result.dig('result', 'insertText')).to eq('owner => ${1},$0')
+      expect(result.dig('result', 'insertTextFormat')).to eq(2)
       expect(result.dig('result', 'documentation')).to include('The user to whom the file should belong')
 
       # A partial attribute followed by whitespace must not complete
