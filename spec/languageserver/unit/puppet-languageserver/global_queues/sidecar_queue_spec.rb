@@ -29,6 +29,27 @@ describe 'PuppetLanguageServer::GlobalQueues::SidecarQueue' do
     expect(subject.job_class).is_a?(PuppetLanguageServer::GlobalQueues::SingleInstanceQueueJob)
   end
 
+  describe '#sidecar_gem_environment' do
+    let(:gem_home) do
+      File.expand_path(File.join(__dir__, '..', '..', '..', '..', '..', 'gems'))
+    end
+
+    it 'provides the bundled gems to the sidecar when they exist' do
+      allow(Dir).to receive(:exist?).with(gem_home).and_return(true)
+
+      expect(subject.send(:sidecar_gem_environment)).to eq(
+        'GEM_HOME' => gem_home,
+        'GEM_PATH' => gem_home
+      )
+    end
+
+    it 'leaves the sidecar environment unchanged when there are no bundled gems' do
+      allow(Dir).to receive(:exist?).with(gem_home).and_return(false)
+
+      expect(subject.send(:sidecar_gem_environment)).to eq({})
+    end
+  end
+
   describe '#execute' do
     let(:mock_connection) { Object.new }
     let(:connection_id) { 'mock_conn_id' }

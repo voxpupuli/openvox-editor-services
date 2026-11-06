@@ -166,8 +166,19 @@ module PuppetLanguageServer
         handler.respond_to?(:session_state) ? handler.session_state : nil
       end
 
+      # The language server removes GEM_HOME/GEM_PATH from its own environment
+      # while activating the OpenVox agent runtime. The sidecar is a child
+      # process and still needs the bundled extension gems (openvox-strings,
+      # yard, etc.), so restore them for the sidecar invocation.
+      def sidecar_gem_environment
+        gem_home = File.expand_path(File.join(__dir__, '..', '..', '..', 'gems'))
+        return {} unless Dir.exist?(gem_home)
+
+        { 'GEM_HOME' => gem_home, 'GEM_PATH' => gem_home }
+      end
+
       def run_sidecar(cmd)
-        Open3.capture3(*cmd)
+        Open3.capture3(sidecar_gem_environment, *cmd)
 
         # The following code should ONLY be uncommented when debugging acceptance tests failures.
         # It caches the sidecar responses so tests sidecar calls will be (VERY) quick, which speeds
@@ -186,7 +197,7 @@ module PuppetLanguageServer
         #   ]
         # end
         # # Rubocop failure is here on purpose
-        # stdout,stderr,status = Open3.capture3(*cmd)
+        # stdout,stderr,status = Open3.capture3(sidecar_gem_environment, *cmd)
         # File.write(cache_file, stdout, mode: 'wb', encoding: 'utf-8')
         # [stdout, stderr, status]
       end
