@@ -262,24 +262,20 @@ module PuppetLanguageServerSidecar
             { relative_dir: 'manifests', glob: '/**/*.pp' } # Pretty much everything in most modules
           ],
           datatype: [
-            { relative_dir: 'lib/puppet/datatypes',           glob: '/**/*.rb' }, # Custom Data Types
-            { relative_dir: 'vendor_ruby/puppet/datatypes',   glob: '/**/*.rb' }, # Custom Data Types in a Puppet agent layout
-            { relative_dir: 'puppet/datatypes',               glob: '/**/*.rb' },
-            { relative_dir: 'types',                          glob: '/**/*.pp' }  # Data Type aliases
+            { relative_dir: 'lib/puppet/datatypes',         glob: '/**/*.rb' }, # Custom Data Types
+            { relative_dir: 'vendor_ruby/puppet/datatypes', glob: '/**/*.rb' }, # As above, in a Puppet agent layout
+            { relative_dir: 'types',                        glob: '/**/*.pp' }  # Data Type aliases
           ],
           function: [
             { relative_dir: 'functions',                           glob: '/**/*.pp' }, # Contains custom functions written in the Puppet language.
             { relative_dir: 'lib/puppet/functions',                glob: '/**/*.rb' }, # Contains functions written in Ruby for the modern Puppet::Functions API
             { relative_dir: 'vendor_ruby/puppet/functions',        glob: '/**/*.rb' }, # As above, in a Puppet agent layout
-            { relative_dir: 'puppet/functions',                    glob: '/**/*.rb' },
             { relative_dir: 'lib/puppet/parser/functions',         glob: '/**/*.rb' }, # Contains functions written in Ruby for the legacy Puppet::Parser::Functions API
-            { relative_dir: 'vendor_ruby/puppet/parser/functions', glob: '/**/*.rb' }, # As above, in a Puppet agent layout
-            { relative_dir: 'puppet/parser/functions',             glob: '/**/*.rb' }
+            { relative_dir: 'vendor_ruby/puppet/parser/functions', glob: '/**/*.rb' }  # As above, in a Puppet agent layout
           ],
           type: [
             { relative_dir: 'lib/puppet/type',         glob: '/{,file/}*.rb' }, # Contains Puppet resource types. Resource types like `file` can live in subdirs, hence the glob
-            { relative_dir: 'vendor_ruby/puppet/type', glob: '/{,file/}*.rb' }, # As above, in a Puppet agent layout
-            { relative_dir: 'puppet/type',             glob: '/{,file/}*.rb' }
+            { relative_dir: 'vendor_ruby/puppet/type', glob: '/{,file/}*.rb' }  # As above, in a Puppet agent layout
           ]
         }
       end
