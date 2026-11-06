@@ -360,10 +360,10 @@ describe 'End to End Testing' do
     let(:manifest_file) { File.join($fixtures_dir, 'end_to_end_empty_manifest.pp') }
     let(:manifest_uri) { path_to_uri(manifest_file) }
     let(:content_with_partial_attribute) do
-      "class example {\n  file { '/tmp/test':\n    own\n  }\n}"
+      "class example {\n  file { '/tmp/test':\n    content => 'test',\n    own\n  }\n}"
     end
     let(:content_with_trailing_space) do
-      "class example {\n  file { '/tmp/test':\n    own \n  }\n}"
+      "class example {\n  file { '/tmp/test':\n    content => 'test',\n    own \n  }\n}"
     end
 
     around(:each) do |example|
@@ -402,7 +402,7 @@ describe 'End to End Testing' do
 
       # Completion at the end of the partial attribute name
       @client.clear_messages!
-      @client.send_data(@client.completion_request(@client.next_seq_id, manifest_uri, 2, 7))
+      @client.send_data(@client.completion_request(@client.next_seq_id, manifest_uri, 3, 7))
       expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
       result = @client.data_from_request_seq_id(@client.current_seq_id)
       expect(result['error']).to be_nil
@@ -432,7 +432,7 @@ describe 'End to End Testing' do
       expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
       result = @client.data_from_request_seq_id(@client.current_seq_id)
       expect(result['error']).to be_nil
-      expect(result.dig('result', 'insertText')).to eq('owner => ${1},$0')
+      expect(result.dig('result', 'insertText')).to eq('owner   => ${1},$0')
       expect(result.dig('result', 'insertTextFormat')).to eq(2)
       expect(result.dig('result', 'documentation')).to include('The user to whom the file should belong')
 
@@ -442,7 +442,7 @@ describe 'End to End Testing' do
       expect(@client).to receive_notification_within_timeout(['textDocument/publishDiagnostics', 5])
 
       @client.clear_messages!
-      @client.send_data(@client.completion_request(@client.next_seq_id, manifest_uri, 2, 8))
+      @client.send_data(@client.completion_request(@client.next_seq_id, manifest_uri, 3, 8))
       expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
       result = @client.data_from_request_seq_id(@client.current_seq_id)
       expect(result['error']).to be_nil

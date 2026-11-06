@@ -70,6 +70,9 @@ module PuppetLanguageServer
           # specified in the resource title.
           # Ref: https://puppet.com/docs/puppet/5.3/lang_classes.html#using-resource-like-declarations
           item_value = item.type_name.value == 'class' && item.bodies.length == 1 ? item.bodies[0].title.value : item.type_name.value
+          # Align hashrockets with the longest existing attribute name
+          padding = item.bodies.flat_map { |body| (body.operations || []).map { |operation| operation.attribute_name.to_s.length } }.max || 0
+          resource_data = { 'resource_type' => item_value, 'padding' => padding }
           item_object = PuppetLanguageServer::PuppetHelper.get_type(session_state, item_value)
           unless item_object.nil?
             # Add Parameters
@@ -78,11 +81,7 @@ module PuppetLanguageServer
                 'label' => name.to_s,
                 'kind' => LSP::CompletionItemKind::PROPERTY,
                 'detail' => 'Parameter',
-                'data' => {
-                  'type' => 'resource_parameter',
-                  'param' => name.to_s,
-                  'resource_type' => item_value
-                }
+                'data' => resource_data.merge('type' => 'resource_parameter', 'param' => name.to_s)
               )
             end
             # Add Properties
@@ -91,11 +90,7 @@ module PuppetLanguageServer
                 'label' => name.to_s,
                 'kind' => LSP::CompletionItemKind::PROPERTY,
                 'detail' => 'Property',
-                'data' => {
-                  'type' => 'resource_property',
-                  'prop' => name.to_s,
-                  'resource_type' => item_value
-                }
+                'data' => resource_data.merge('type' => 'resource_property', 'prop' => name.to_s)
               )
             end
             # TODO: What about meta parameters?
@@ -110,11 +105,7 @@ module PuppetLanguageServer
                   'label' => name.to_s,
                   'kind' => LSP::CompletionItemKind::PROPERTY,
                   'detail' => 'Parameter',
-                  'data' => {
-                    'type' => 'resource_class_parameter',
-                    'param' => name.to_s,
-                    'resource_type' => item_value
-                  }
+                  'data' => resource_data.merge('type' => 'resource_class_parameter', 'param' => name.to_s)
                 )
               end
             end
@@ -291,7 +282,7 @@ module PuppetLanguageServer
 
           # TODO: More things?
           result.documentation = param_type[:doc] unless param_type[:doc].nil?
-          result.insertText = "#{data['param']} => ${1},$0"
+          result.insertText = "#{data['param'].to_s.ljust(data['padding'].to_i)} => ${1},$0"
         when 'resource_property'
           item_type = PuppetLanguageServer::PuppetHelper.get_type(session_state, data['resource_type'])
           return result if item_type.nil?
@@ -301,7 +292,7 @@ module PuppetLanguageServer
 
           # TODO: More things?
           result.documentation = prop_type[:doc] unless prop_type[:doc].nil?
-          result.insertText = "#{data['prop']} => ${1},$0"
+          result.insertText = "#{data['prop'].to_s.ljust(data['padding'].to_i)} => ${1},$0"
 
         when 'resource_class'
           item_class = PuppetLanguageServer::PuppetHelper.get_class(session_state, data['name'])
@@ -319,7 +310,7 @@ module PuppetLanguageServer
           doc += param_type[:type] unless param_type[:type].nil?
           doc += "---\n#{param_type[:doc]}" unless param_type[:doc].nil?
           result.documentation = doc
-          result.insertText = "#{data['param']} => ${1},$0"
+          result.insertText = "#{data['param'].to_s.ljust(data['padding'].to_i)} => ${1},$0"
         end
 
         result.insertTextFormat = LSP::InsertTextFormat::SNIPPET if data['type'].to_s.start_with?('resource_')
