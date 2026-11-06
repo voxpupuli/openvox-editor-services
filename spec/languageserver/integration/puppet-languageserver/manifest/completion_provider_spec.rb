@@ -647,6 +647,10 @@ EOT
       it 'should align the hashrocket with the longest existing attribute' do
         result = subject.resolve(session_state, @resolve_request)
         expect(result.insertText).to eq('name   => ${1},$0')
+        expect(result.textEdit.newText).to eq('name   => ${1},$0')
+        expect(result.textEdit.range.start.line).to eq(2)
+        expect(result.textEdit.range.start.character).to eq(0)
+        expect(result.textEdit.range.end.character).to eq(0)
       end
     end
 
