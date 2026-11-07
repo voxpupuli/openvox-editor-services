@@ -61,10 +61,13 @@ describe 'End to End Testing' do
 
   after(:each) do
     @client.close unless @client.nil? || @client.closed?
-    Process.kill("KILL", @server_pid) rescue true
-    @server_stdin.close
-    @server_stdout.close
-    @server_stderr.close
+    # Never signal PID -1: that means "every process this user can signal" and
+    # would kill the SSH session and the test runner when setup fails before the
+    # server actually starts.
+    Process.kill("KILL", @server_pid) if @server_pid.is_a?(Integer) && @server_pid.positive?
+    [@server_stdin, @server_stdout, @server_stderr].each do |io|
+      io.close unless io.nil? || io.closed?
+    end
   end
 
   def path_to_uri(path)
