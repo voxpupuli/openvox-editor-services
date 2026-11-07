@@ -70,6 +70,12 @@ end
 describe 'completion_provider' do
   let(:session_state) { PuppetLanguageServer::ClientSessionState.new(nil, :connection_id => 'mock') }
   let(:subject) { PuppetLanguageServer::Manifest::CompletionProvider }
+  let(:document_uri) { 'file:///spec/completion_provider_spec.pp' }
+
+  def complete_with_document(content, line_num, char_num, version = 1)
+    session_state.documents.set_document(document_uri, content, version)
+    subject.complete(session_state, content, line_num, char_num, file_uri: document_uri)
+  end
 
   before(:each) do
     populate_cache(session_state.object_cache)
@@ -640,11 +646,13 @@ EOT
       let(:char_num) { 0 }
 
       before(:each) do
-        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @completion_response = complete_with_document(content, line_num, char_num)
         @resolve_request = retrieve_completion_response('name', LSP::CompletionItemKind::PROPERTY)
       end
 
       it 'should align the hashrocket with the longest existing attribute' do
+        expect(@resolve_request.data).not_to have_key('additional_edits')
+
         result = subject.resolve(session_state, @resolve_request)
         expect(result.insertText).to eq('name   => ${1},$0')
         expect(result.textEdit.newText).to eq('name   => ${1},$0')
@@ -712,7 +720,7 @@ EOT
       let(:char_num) { 0 }
 
       before(:each) do
-        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @completion_response = complete_with_document(content, line_num, char_num)
         @resolve_request = retrieve_completion_response('ensure', LSP::CompletionItemKind::PROPERTY)
       end
 
@@ -728,7 +736,7 @@ EOT
       let(:char_num) { 5 }
 
       before(:each) do
-        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @completion_response = complete_with_document(content, line_num, char_num)
         @resolve_request = retrieve_completion_response('comment', LSP::CompletionItemKind::PROPERTY)
       end
 
@@ -742,6 +750,46 @@ EOT
         expect(edit.range.start.line).to eq(1)
         expect(edit.range.start.character).to eq(5)
         expect(edit.range.end.character).to eq(6)
+      end
+    end
+
+    context 'when resolving an attribute in an empty resource' do
+      let(:content) { "user { 'Alice':\n\n}\n" }
+      let(:line_num) { 1 }
+      let(:char_num) { 0 }
+
+      before(:each) do
+        @completion_response = complete_with_document(content, line_num, char_num)
+        @resolve_request = retrieve_completion_response('name', LSP::CompletionItemKind::PROPERTY)
+      end
+
+      it 'does not return additional text edits' do
+        result = subject.resolve(session_state, @resolve_request)
+
+        expect(result.insertText).to eq('name => ${1},$0')
+        expect(result.additionalTextEdits).to be_nil
+      end
+    end
+
+    context 'when resolving with a pathological padding value' do
+      it 'falls back to the attribute name length' do
+        resolve_request = LSP::CompletionItem.new(
+          'label' => 'name',
+          'kind' => LSP::CompletionItemKind::PROPERTY,
+          'data' => {
+            'type' => 'resource_parameter',
+            'resource_type' => 'user',
+            'param' => 'name',
+            'padding' => 10**12,
+            'alignment' => true,
+            'replace_range' => LSP.create_range(0, 0, 0, 0)
+          }
+        )
+
+        result = subject.resolve(session_state, resolve_request)
+
+        expect(result.insertText).to eq('name => ${1},$0')
+        expect(result.additionalTextEdits).to be_nil
       end
     end
 

@@ -127,6 +127,94 @@ describe 'PuppetLanguageServer::Manifest::CompletionProvider' do
           expect(result.items.map(&:label)).to include('param1', 'prop1')
         end
       end
+
+      context 'with an attribute name longer than the padding cap' do
+        let(:content) { "mocktype { 'title':\n  #{'a' * 1000} => 'value',\n  pro\n}\n" }
+        let(:line_num) { 2 }
+        let(:char_num) { 5 }
+
+        it 'does not add alignment data' do
+          result = subject.complete(session_state, content, line_num, char_num)
+          item = result.items.find { |completion_item| completion_item.label == 'prop1' }
+
+          expect(item).not_to be_nil
+          expect(item.data['padding']).to eq('prop1'.length)
+          expect(item.data).not_to have_key('additional_edits')
+        end
+      end
+    end
+  end
+
+  describe '.alignment_edits_from_operations' do
+    def operations_for(content, line_num, char_num)
+      result = PuppetLanguageServer::PuppetParserHelper.object_under_cursor(
+        content, line_num, char_num,
+        multiple_attempts: true,
+        disallowed_classes: [Puppet::Pops::Model::QualifiedName, Puppet::Pops::Model::BlockExpression],
+        tasks_mode: false,
+        remove_trigger_char: false
+      )
+      result[:model].bodies.flat_map { |body| body.operations || [] }
+    end
+
+    {
+      'short existing attribute' => {
+        content: "class example {\n  file { '/tmp/test':\n    mode => '0644',\n    own\n  }\n}\n",
+        line_num: 3,
+        char_num: 7,
+        indent: '    ',
+        width: 5
+      },
+      'missing space before hashrocket' => {
+        content: "class example {\n  file { '/tmp/test':\n    ensure=> 'present',\n    mod\n  }\n}\n",
+        line_num: 3,
+        char_num: 7,
+        indent: '    ',
+        width: 6
+      },
+      'misaligned existing attributes' => {
+        content: "class example {\n  file { '/tmp/test':\n    ensure    => 'present',\n    uid => 1,\n    mode\n  }\n}\n",
+        line_num: 4,
+        char_num: 8,
+        indent: '    ',
+        width: 6
+      },
+      'multiple hashrockets on one line' => {
+        content: "class example {\n  file { '/tmp/test':\n    a => 1, b => 2,\n    mode\n  }\n}\n",
+        line_num: 3,
+        char_num: 8,
+        indent: '    ',
+        width: 6
+      }
+    }.each do |name, testcase|
+      it "matches format-on-type for #{name}" do
+        operations = operations_for(
+          testcase[:content],
+          testcase[:line_num],
+          testcase[:char_num]
+        )
+
+        actual = subject.alignment_edits_from_operations(
+          operations,
+          testcase[:line_num],
+          testcase[:indent].length,
+          testcase[:width]
+        ).map(&:to_h)
+
+        candidate = testcase[:content].split("\n", -1)
+        candidate[testcase[:line_num]] = "#{testcase[:indent]}#{'x' * testcase[:width]} =>"
+
+        expected = PuppetLanguageServer::Manifest::FormatOnTypeProvider.instance.format(
+          candidate.join("\n"),
+          testcase[:line_num],
+          testcase[:indent].length + testcase[:width] + 2,
+          '>',
+          { 'insertSpaces' => true },
+          0
+        ).reject { |edit| edit.range.start.line == testcase[:line_num] }.map(&:to_h)
+
+        expect(actual).to eq(expected)
+      end
     end
   end
 end

@@ -10,7 +10,8 @@ module PuppetLanguageServer
       def self.complete(session_state, content, line_num, char_num, options = {})
         options = {
           tasks_mode: false,
-          context: nil # LSP::CompletionContext object
+          context: nil, # LSP::CompletionContext object
+          file_uri: nil
         }.merge(options)
         items = []
         incomplete = false
@@ -66,7 +67,7 @@ module PuppetLanguageServer
           all_functions(session_state, options[:tasks_mode]) { |x| items << x }
 
         when 'Puppet::Pops::Model::ResourceExpression'
-          # We are inside a resource definition.  Should display all available
+          # We are inside a resource definition. Should display all available
           # properities and parameters.
 
           # Try Types first
@@ -74,22 +75,19 @@ module PuppetLanguageServer
           # specified in the resource title.
           # Ref: https://puppet.com/docs/puppet/5.3/lang_classes.html#using-resource-like-declarations
           item_value = item.type_name.value == 'class' && item.bodies.length == 1 ? item.bodies[0].title.value : item.type_name.value
-          # Align hashrockets with the longest existing attribute name
-          padding = item.bodies.flat_map { |body| (body.operations || []).map { |operation| operation.attribute_name.to_s.length } }.max || 0
-          # Replace the partially typed attribute name instead of relying on the
-          # client to guess the edit range from insertText.
-          lines = content.split("\n", -1)
-          line = lines[line_num].to_s
-          slice = line[0, char_num].to_s
-          indent = slice[/\A[ \t]*/] || ''
-          # Avoid a trailing-anchored quantified regex here: because the search is
-          # unanchored, it retries at every offset and can be quadratic on long runs
-          # of attribute-name characters.
-          boundary = slice.rindex(/[^\w-]/)
-          prefix = boundary.nil? ? slice : slice[(boundary + 1)..].to_s
-          replace_range = LSP.create_range(line_num, char_num - prefix.length, line_num, char_num)
-          resource_data = { 'resource_type' => item_value, 'padding' => padding, 'replace_range' => replace_range }
-          alignment_context = { lines: lines, line_num: line_num, indent: indent, cache: {} }
+
+          # Align hashrockets with the longest existing attribute name. A zero
+          # padding means there are no existing attributes. A value above the
+          # cap is pathological and disables alignment entirely.
+          operations = item.bodies.flat_map { |body| body.operations || [] }
+          file_uri = options[:file_uri]
+          document_version = file_uri.nil? ? nil : session_state.documents.document_version(file_uri)
+          resource_data = attribute_resource_data(
+            content, line_num, char_num,
+            { file_uri: file_uri, document_version: document_version, tasks_mode: options[:tasks_mode] },
+            item_value, operations
+          )
+
           item_object = PuppetLanguageServer::PuppetHelper.get_type(session_state, item_value)
           unless item_object.nil?
             # Add Parameters
@@ -98,7 +96,7 @@ module PuppetLanguageServer
                 'label' => name.to_s,
                 'kind' => LSP::CompletionItemKind::PROPERTY,
                 'detail' => 'Parameter',
-                'data' => attribute_data(resource_data, alignment_context, 'resource_parameter', 'param', name)
+                'data' => attribute_data(resource_data, 'resource_parameter', 'param', name)
               )
             end
             # Add Properties
@@ -107,11 +105,12 @@ module PuppetLanguageServer
                 'label' => name.to_s,
                 'kind' => LSP::CompletionItemKind::PROPERTY,
                 'detail' => 'Property',
-                'data' => attribute_data(resource_data, alignment_context, 'resource_property', 'prop', name)
+                'data' => attribute_data(resource_data, 'resource_property', 'prop', name)
               )
             end
             # TODO: What about meta parameters?
           end
+
           if item_object.nil?
             # Try Classes/Defined Types
             item_object = PuppetLanguageServer::PuppetHelper.get_class(session_state, item_value)
@@ -122,7 +121,7 @@ module PuppetLanguageServer
                   'label' => name.to_s,
                   'kind' => LSP::CompletionItemKind::PROPERTY,
                   'detail' => 'Parameter',
-                  'data' => attribute_data(resource_data, alignment_context, 'resource_class_parameter', 'param', name)
+                  'data' => attribute_data(resource_data, 'resource_class_parameter', 'param', name)
                 )
               end
             end
@@ -300,7 +299,7 @@ module PuppetLanguageServer
 
           # TODO: More things?
           result.documentation = param_type[:doc] unless param_type[:doc].nil?
-          attribute_insert_text(result, data, data['param'])
+          attribute_insert_text(session_state, result, data, data['param'])
         when 'resource_property'
           item_type = PuppetLanguageServer::PuppetHelper.get_type(session_state, data['resource_type'])
           return result if item_type.nil?
@@ -310,7 +309,7 @@ module PuppetLanguageServer
 
           # TODO: More things?
           result.documentation = prop_type[:doc] unless prop_type[:doc].nil?
-          attribute_insert_text(result, data, data['prop'])
+          attribute_insert_text(session_state, result, data, data['prop'])
 
         when 'resource_class'
           item_class = PuppetLanguageServer::PuppetHelper.get_class(session_state, data['name'])
@@ -328,7 +327,7 @@ module PuppetLanguageServer
           doc += param_type[:type] unless param_type[:type].nil?
           doc += "---\n#{param_type[:doc]}" unless param_type[:doc].nil?
           result.documentation = doc
-          attribute_insert_text(result, data, data['param'])
+          attribute_insert_text(session_state, result, data, data['param'])
         end
 
         result.insertTextFormat = LSP::InsertTextFormat::SNIPPET if data['type'].to_s.start_with?('resource_')

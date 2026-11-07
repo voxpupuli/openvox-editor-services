@@ -449,6 +449,9 @@ describe 'End to End Testing' do
       expect(result.dig('result', 'insertTextFormat')).to eq(2)
       expect(result.dig('result', 'documentation')).to include('The user to whom the file should belong')
 
+      # The completion payload no longer contains eager alignment edits
+      expect(owner['data']).not_to have_key('additional_edits')
+
       # A partial attribute followed by whitespace must not complete
       @client.clear_messages!
       @client.send_data(@client.did_change_notification(manifest_file, content_with_trailing_space))
@@ -468,6 +471,81 @@ describe 'End to End Testing' do
       result = @client.data_from_request_seq_id(@client.current_seq_id)
       expect(result['error']).to be_nil
       expect(result['result']).not_to be_nil
+
+      # Start shutdown process
+      @client.clear_messages!
+      @client.send_data(@client.shutdown_request(@client.next_seq_id))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+      result = @client.data_from_request_seq_id(@client.current_seq_id)
+      expect(result['result']).to be_nil
+
+      # Exit process
+      @client.clear_messages!
+      @client.send_data(@client.exit_notification)
+      expect(@client).to close_within_timeout(5)
+    end
+
+    it 'aligns a short completed attribute with an existing longer attribute' do
+      # initialize_request
+      @client.send_data(@client.initialize_request(@client.next_seq_id, workspace))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+
+      # initialized event
+      @client.send_data(@client.initialized_notification)
+
+      # Send the client settings
+      @client.send_client_settings
+
+      # Wait for the language server to finish loading the Puppet information
+      @client.clear_messages!
+      expect(@client.wait_for_puppet_loading(120)).to be(true)
+
+      # `ensure=>` deliberately has no space before the hashrocket so the
+      # existing attribute also has to be realigned.
+      content = "class example {\n  file { '/tmp/test':\n    ensure=> 'present',\n    mod\n  }\n}"
+
+      @client.clear_messages!
+      @client.send_data(@client.did_open_notification(manifest_file, 1, content))
+      expect(@client).to receive_notification_within_timeout(['textDocument/publishDiagnostics', 5])
+
+      # Completion at the end of the partial attribute name on line 3
+      @client.clear_messages!
+      @client.send_data(@client.completion_request(@client.next_seq_id, manifest_uri, 3, 7))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+      result = @client.data_from_request_seq_id(@client.current_seq_id)
+      expect(result['error']).to be_nil
+
+      items = result.dig('result', 'items')
+      expect(items).to be_an(Array)
+
+      mode = items.find { |item| item['label'] == 'mode' }
+      expect(mode).not_to be_nil
+      expect(mode.dig('data', 'padding')).to eq(6)
+      expect(mode['data']).not_to have_key('additional_edits')
+
+      # Resolve the item and verify both the new line and the existing line
+      @client.clear_messages!
+      @client.send_data(@client.completion_resolve_request(@client.next_seq_id, mode))
+      expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
+      result = @client.data_from_request_seq_id(@client.current_seq_id)
+      expect(result['error']).to be_nil
+
+      expect(result.dig('result', 'insertText')).to eq('mode   => ${1},$0')
+      expect(result.dig('result', 'textEdit', 'newText')).to eq('mode   => ${1},$0')
+      expect(result.dig('result', 'textEdit', 'range')).to eq(
+        'start' => { 'line' => 3, 'character' => 4 },
+        'end' => { 'line' => 3, 'character' => 7 }
+      )
+      expect(result.dig('result', 'additionalTextEdits')).to eq(
+        [{ 'newText' => ' ',
+           'range' => { 'start' => { 'line' => 2, 'character' => 10 },
+                        'end' => { 'line' => 2, 'character' => 10 } } }]
+      )
+      expect(result.dig('result', 'insertTextFormat')).to eq(2)
+
+      # The completion and resolve requests must not have failed internally
+      expect(File.read(@server_log_file)).not_to include('(textDocument/completion)')
+      expect(File.read(@server_log_file)).not_to include('(completionItem/resolve)')
 
       # Start shutdown process
       @client.clear_messages!
