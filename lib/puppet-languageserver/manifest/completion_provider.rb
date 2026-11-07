@@ -80,8 +80,13 @@ module PuppetLanguageServer
           # client to guess the edit range from insertText.
           lines = content.split("\n", -1)
           line = lines[line_num].to_s
-          indent = line[0, char_num].to_s[/\A[ \t]*/] || ''
-          prefix = line[0, char_num].to_s[/[\w-]*\z/] || ''
+          slice = line[0, char_num].to_s
+          indent = slice[/\A[ \t]*/] || ''
+          # Avoid a trailing-anchored quantified regex here: because the search is
+          # unanchored, it retries at every offset and can be quadratic on long runs
+          # of attribute-name characters.
+          boundary = slice.rindex(/[^\w-]/)
+          prefix = boundary.nil? ? slice : slice[(boundary + 1)..].to_s
           replace_range = LSP.create_range(line_num, char_num - prefix.length, line_num, char_num)
           resource_data = { 'resource_type' => item_value, 'padding' => padding, 'replace_range' => replace_range }
           alignment_context = { lines: lines, line_num: line_num, indent: indent, cache: {} }
