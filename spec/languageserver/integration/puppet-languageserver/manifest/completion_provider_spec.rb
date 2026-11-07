@@ -620,11 +620,37 @@ EOT
           expect(result.documentation).to match(/.+/)
         end
 
-        it 'should return a text literal with the parameter defintion' do
+        it 'should return a snippet with the parameter definition and the cursor in the value position' do
           result = subject.resolve(session_state, @resolve_request)
-          expect(result.insertText).to match(/.+ => /)
-          expect(result.insertTextFormat).to be_nil
+          expect(result.insertText).to eq('name => ${1},$0')
+          expect(result.insertTextFormat).to eq(LSP::InsertTextFormat::SNIPPET)
         end
+      end
+    end
+
+    context 'when resolving a resource_parameter request in an aligned resource' do
+      let(:content) { <<-EOT
+        user { 'Alice':
+          ensure => 'present',
+
+        }
+      EOT
+      }
+      let(:line_num) { 2 }
+      let(:char_num) { 0 }
+
+      before(:each) do
+        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @resolve_request = retrieve_completion_response('name', LSP::CompletionItemKind::PROPERTY)
+      end
+
+      it 'should align the hashrocket with the longest existing attribute' do
+        result = subject.resolve(session_state, @resolve_request)
+        expect(result.insertText).to eq('name   => ${1},$0')
+        expect(result.textEdit.newText).to eq('name   => ${1},$0')
+        expect(result.textEdit.range.start.line).to eq(2)
+        expect(result.textEdit.range.start.character).to eq(0)
+        expect(result.textEdit.range.end.character).to eq(0)
       end
     end
 
@@ -666,11 +692,56 @@ EOT
           expect(result.documentation).to match(/.+/)
         end
 
-        it 'should return a text literal with the property defintion' do
+        it 'should return a snippet with the property definition and the cursor in the value position' do
           result = subject.resolve(session_state, @resolve_request)
-          expect(result.insertText).to match(/.+ => /)
-          expect(result.insertTextFormat).to be_nil
+          expect(result.insertText).to eq('ensure => ${1},$0')
+          expect(result.insertTextFormat).to eq(LSP::InsertTextFormat::SNIPPET)
         end
+      end
+    end
+
+    context 'when resolving a resource_property request in an aligned resource' do
+      let(:content) { <<-EOT
+        user { 'Alice':
+          comment => 'Alice',
+
+        }
+      EOT
+      }
+      let(:line_num) { 2 }
+      let(:char_num) { 0 }
+
+      before(:each) do
+        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @resolve_request = retrieve_completion_response('ensure', LSP::CompletionItemKind::PROPERTY)
+      end
+
+      it 'should align the hashrocket with the longest existing attribute' do
+        result = subject.resolve(session_state, @resolve_request)
+        expect(result.insertText).to eq('ensure  => ${1},$0')
+      end
+    end
+
+    context 'when resolving an attribute longer than the existing attributes' do
+      let(:content) { "user { 'Alice':\n  uid => 1,\n  com\n}" }
+      let(:line_num) { 2 }
+      let(:char_num) { 5 }
+
+      before(:each) do
+        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @resolve_request = retrieve_completion_response('comment', LSP::CompletionItemKind::PROPERTY)
+      end
+
+      it 'should pad the existing hashrockets to line up with the completed attribute' do
+        result = subject.resolve(session_state, @resolve_request)
+        expect(result.insertText).to eq('comment => ${1},$0')
+        expect(result.additionalTextEdits.length).to eq(1)
+
+        edit = result.additionalTextEdits.first
+        expect(edit.newText).to eq('     ')
+        expect(edit.range.start.line).to eq(1)
+        expect(edit.range.start.character).to eq(5)
+        expect(edit.range.end.character).to eq(6)
       end
     end
 
