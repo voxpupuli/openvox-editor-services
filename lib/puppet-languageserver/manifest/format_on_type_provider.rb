@@ -9,6 +9,17 @@ module PuppetLanguageServer
         def instance
           @instance ||= new
         end
+
+        # Align the hashrockets around a hypothetical attribute so completion
+        # can add the same text edits that format-on-type would produce.
+        def alignment_edits(lines, line_num, indent, max_length)
+          candidate = lines.dup
+          candidate[line_num] = "#{indent}#{'x' * max_length} =>"
+          instance.format(candidate.join("\n"), line_num, indent.length + max_length + 2,
+                          '>', { 'insertSpaces' => true }, 0)
+                  .reject { |edit| edit.range.start.line == line_num }
+                  .map(&:to_h)
+        end
       end
 
       def format(content, line, char, trigger_character, formatting_options, max_filesize = 4096)
