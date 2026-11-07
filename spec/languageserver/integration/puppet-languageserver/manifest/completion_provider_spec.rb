@@ -722,6 +722,29 @@ EOT
       end
     end
 
+    context 'when resolving an attribute longer than the existing attributes' do
+      let(:content) { "user { 'Alice':\n  uid => 1,\n  com\n}" }
+      let(:line_num) { 2 }
+      let(:char_num) { 5 }
+
+      before(:each) do
+        @completion_response = subject.complete(session_state, content, line_num, char_num)
+        @resolve_request = retrieve_completion_response('comment', LSP::CompletionItemKind::PROPERTY)
+      end
+
+      it 'should pad the existing hashrockets to line up with the completed attribute' do
+        result = subject.resolve(session_state, @resolve_request)
+        expect(result.insertText).to eq('comment => ${1},$0')
+        expect(result.additionalTextEdits.length).to eq(1)
+
+        edit = result.additionalTextEdits.first
+        expect(edit.newText).to eq('     ')
+        expect(edit.range.start.line).to eq(1)
+        expect(edit.range.start.character).to eq(5)
+        expect(edit.range.end.character).to eq(6)
+      end
+    end
+
     context 'when resolving a resource_class request' do
       let(:content) { <<-EOT
         user { 'Alice':

@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require 'puppet-languageserver/manifest/completion_provider_attributes'
+
 module PuppetLanguageServer
   module Manifest
     module CompletionProvider
+      extend CompletionProviderAttributes
+
       def self.complete(session_state, content, line_num, char_num, options = {})
         options = {
           tasks_mode: false,
@@ -74,10 +78,13 @@ module PuppetLanguageServer
           padding = item.bodies.flat_map { |body| (body.operations || []).map { |operation| operation.attribute_name.to_s.length } }.max || 0
           # Replace the partially typed attribute name instead of relying on the
           # client to guess the edit range from insertText.
-          line = content.split("\n", -1)[line_num].to_s
+          lines = content.split("\n", -1)
+          line = lines[line_num].to_s
+          indent = line[0, char_num].to_s[/\A[ \t]*/] || ''
           prefix = line[0, char_num].to_s[/[\w-]*\z/] || ''
           replace_range = LSP.create_range(line_num, char_num - prefix.length, line_num, char_num)
           resource_data = { 'resource_type' => item_value, 'padding' => padding, 'replace_range' => replace_range }
+          alignment_context = { lines: lines, line_num: line_num, indent: indent, cache: {} }
           item_object = PuppetLanguageServer::PuppetHelper.get_type(session_state, item_value)
           unless item_object.nil?
             # Add Parameters
@@ -86,7 +93,7 @@ module PuppetLanguageServer
                 'label' => name.to_s,
                 'kind' => LSP::CompletionItemKind::PROPERTY,
                 'detail' => 'Parameter',
-                'data' => resource_data.merge('type' => 'resource_parameter', 'param' => name.to_s)
+                'data' => attribute_data(resource_data, alignment_context, 'resource_parameter', 'param', name)
               )
             end
             # Add Properties
@@ -95,7 +102,7 @@ module PuppetLanguageServer
                 'label' => name.to_s,
                 'kind' => LSP::CompletionItemKind::PROPERTY,
                 'detail' => 'Property',
-                'data' => resource_data.merge('type' => 'resource_property', 'prop' => name.to_s)
+                'data' => attribute_data(resource_data, alignment_context, 'resource_property', 'prop', name)
               )
             end
             # TODO: What about meta parameters?
@@ -110,7 +117,7 @@ module PuppetLanguageServer
                   'label' => name.to_s,
                   'kind' => LSP::CompletionItemKind::PROPERTY,
                   'detail' => 'Parameter',
-                  'data' => resource_data.merge('type' => 'resource_class_parameter', 'param' => name.to_s)
+                  'data' => attribute_data(resource_data, alignment_context, 'resource_class_parameter', 'param', name)
                 )
               end
             end
@@ -124,10 +131,6 @@ module PuppetLanguageServer
       end
 
       # BEGIN CompletionItem Helpers
-      def self.attribute_insert_text(item, data, name)
-        item.insertText = "#{name.to_s.ljust(data['padding'].to_i)} => ${1},$0"
-        item.textEdit = LSP::TextEdit.new.from_h!('newText' => item.insertText, 'range' => data['replace_range'])
-      end
 
       def self.keywords(keywords = [], &block)
         keywords.each do |keyword|

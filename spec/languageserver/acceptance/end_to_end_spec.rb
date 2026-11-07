@@ -360,10 +360,10 @@ describe 'End to End Testing' do
     let(:manifest_file) { File.join($fixtures_dir, 'end_to_end_empty_manifest.pp') }
     let(:manifest_uri) { path_to_uri(manifest_file) }
     let(:content_with_partial_attribute) do
-      "class example {\n  file { '/tmp/test':\n    content => 'test',\n    own\n  }\n}"
+      "class example {\n  file { '/tmp/test':\n    mode => '0644',\n    own\n  }\n}"
     end
     let(:content_with_trailing_space) do
-      "class example {\n  file { '/tmp/test':\n    content => 'test',\n    own \n  }\n}"
+      "class example {\n  file { '/tmp/test':\n    mode => '0644',\n    own \n  }\n}"
     end
 
     around(:each) do |example|
@@ -432,11 +432,16 @@ describe 'End to End Testing' do
       expect(@client).to receive_message_with_request_id_within_timeout([@client.current_seq_id, 5])
       result = @client.data_from_request_seq_id(@client.current_seq_id)
       expect(result['error']).to be_nil
-      expect(result.dig('result', 'insertText')).to eq('owner   => ${1},$0')
-      expect(result.dig('result', 'textEdit', 'newText')).to eq('owner   => ${1},$0')
+      expect(result.dig('result', 'insertText')).to eq('owner => ${1},$0')
+      expect(result.dig('result', 'textEdit', 'newText')).to eq('owner => ${1},$0')
       expect(result.dig('result', 'textEdit', 'range')).to eq(
         'start' => { 'line' => 3, 'character' => 4 },
         'end' => { 'line' => 3, 'character' => 7 }
+      )
+      expect(result.dig('result', 'additionalTextEdits')).to eq(
+        [{ 'newText' => '  ',
+           'range' => { 'start' => { 'line' => 2, 'character' => 8 },
+                        'end' => { 'line' => 2, 'character' => 9 } } }]
       )
       expect(result.dig('result', 'insertTextFormat')).to eq(2)
       expect(result.dig('result', 'documentation')).to include('The user to whom the file should belong')
