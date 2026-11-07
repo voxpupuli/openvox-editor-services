@@ -34,12 +34,42 @@ describe 'PuppetLanguageServer::GlobalQueues::SidecarQueue' do
       File.expand_path(File.join(__dir__, '..', '..', '..', '..', '..', 'gems'))
     end
 
+    around(:each) do |example|
+      original_gem_path = ENV['GEM_PATH']
+      ENV.delete('GEM_PATH')
+      begin
+        example.run
+      ensure
+        ENV['GEM_PATH'] = original_gem_path
+      end
+    end
+
     it 'provides the bundled gems to the sidecar when they exist' do
       allow(Dir).to receive(:exist?).with(gem_home).and_return(true)
 
       expect(subject.send(:sidecar_gem_environment)).to eq(
         'GEM_HOME' => gem_home,
         'GEM_PATH' => gem_home
+      )
+    end
+
+    it 'preserves existing GEM_PATH entries' do
+      allow(Dir).to receive(:exist?).with(gem_home).and_return(true)
+      ENV['GEM_PATH'] = ['/custom/gems', '/another/gems'].join(File::PATH_SEPARATOR)
+
+      expect(subject.send(:sidecar_gem_environment)).to eq(
+        'GEM_HOME' => gem_home,
+        'GEM_PATH' => [gem_home, '/custom/gems', '/another/gems'].join(File::PATH_SEPARATOR)
+      )
+    end
+
+    it 'does not duplicate the bundled gem path' do
+      allow(Dir).to receive(:exist?).with(gem_home).and_return(true)
+      ENV['GEM_PATH'] = [gem_home, '/custom/gems'].join(File::PATH_SEPARATOR)
+
+      expect(subject.send(:sidecar_gem_environment)).to eq(
+        'GEM_HOME' => gem_home,
+        'GEM_PATH' => [gem_home, '/custom/gems'].join(File::PATH_SEPARATOR)
       )
     end
 

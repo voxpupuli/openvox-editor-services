@@ -174,7 +174,13 @@ module PuppetLanguageServer
         gem_home = File.expand_path(File.join(__dir__, '..', '..', '..', 'gems'))
         return {} unless Dir.exist?(gem_home)
 
-        { 'GEM_HOME' => gem_home, 'GEM_PATH' => gem_home }
+        # Preserve any GEM_PATH entries inherited from the environment (for
+        # example a user's own gems) instead of replacing them. Keep the
+        # bundled gems first so they win when the same gem is available twice.
+        existing_paths = ENV['GEM_PATH'].to_s.split(File::PATH_SEPARATOR).reject(&:empty?)
+        gem_path = ([gem_home] + existing_paths).uniq.join(File::PATH_SEPARATOR)
+
+        { 'GEM_HOME' => gem_home, 'GEM_PATH' => gem_path }
       end
 
       def run_sidecar(cmd)
