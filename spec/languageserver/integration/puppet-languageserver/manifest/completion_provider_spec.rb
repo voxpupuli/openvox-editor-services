@@ -793,6 +793,44 @@ EOT
       end
     end
 
+    context 'when the document has changed since completion' do
+      let(:content) { "user { 'Alice':\n  ensure=> 'present',\n  nam\n}\n" }
+      let(:line_num) { 2 }
+      let(:char_num) { 5 }
+
+      before(:each) do
+        @completion_response = complete_with_document(content, line_num, char_num, 1)
+        @resolve_request = retrieve_completion_response('name', LSP::CompletionItemKind::PROPERTY)
+        session_state.documents.set_document(document_uri, content, 2)
+      end
+
+      it 'does not return stale alignment edits' do
+        result = subject.resolve(session_state, @resolve_request)
+
+        expect(result.insertText).to eq('name   => ${1},$0')
+        expect(result.additionalTextEdits).to be_nil
+      end
+    end
+
+    context 'when the document is no longer open' do
+      let(:content) { "user { 'Alice':\n  ensure=> 'present',\n  nam\n}\n" }
+      let(:line_num) { 2 }
+      let(:char_num) { 5 }
+
+      before(:each) do
+        @completion_response = complete_with_document(content, line_num, char_num, 1)
+        @resolve_request = retrieve_completion_response('name', LSP::CompletionItemKind::PROPERTY)
+        session_state.documents.remove_document(document_uri)
+      end
+
+      it 'does not return alignment edits' do
+        result = subject.resolve(session_state, @resolve_request)
+
+        expect(result.insertText).to eq('name   => ${1},$0')
+        expect(result.additionalTextEdits).to be_nil
+      end
+    end
+
     context 'when resolving a resource_class request' do
       let(:content) { <<-EOT
         user { 'Alice':
