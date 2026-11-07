@@ -70,6 +70,12 @@ module PuppetLanguageServer
           # We are inside a resource definition. Should display all available
           # properities and parameters.
 
+          # The attribute list is computed for the current prefix, and the
+          # client must ask again as the user keeps typing. Otherwise it reuses
+          # completion items whose document version and replacement range have
+          # gone stale.
+          incomplete = true
+
           # Try Types first
           # The `class` pseudo resource type is actually used to set properties/params for the puppet type
           # specified in the resource title.

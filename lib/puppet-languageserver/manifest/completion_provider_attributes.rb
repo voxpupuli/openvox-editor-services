@@ -129,33 +129,56 @@ module PuppetLanguageServer
                     name.to_s.length
                   end
 
+        content, char_num, replace_range = attribute_current_context(session_state, data)
         item.insertText = "#{name.to_s.ljust(padding)} => ${1},$0"
-        item.textEdit = LSP::TextEdit.new.from_h!('newText' => item.insertText, 'range' => data['replace_range'])
+        item.textEdit = LSP::TextEdit.new.from_h!('newText' => item.insertText, 'range' => replace_range)
         item.additionalTextEdits = nil
 
-        edits = attribute_resolve_alignment_edits(session_state, data, padding)
+        return if content.nil?
+
+        edits = attribute_alignment_edits(content, data, char_num, padding)
         item.additionalTextEdits = edits unless edits.empty?
       end
 
       private
 
-      def attribute_resolve_alignment_edits(session_state, data, padding)
+      # Completion lists are reused while the user keeps typing, so the
+      # document version stored in the item data can lag behind the open
+      # document. When that happens, fall back to the current document and
+      # parse at the end of the completion line.
+      #
+      # Returns [content, cursor_char, replace_range].
+      def attribute_current_context(session_state, data)
+        uri = data['uri']
+        return [nil, nil, data['replace_range']] if uri.nil?
+
+        line_num = data['cursor_line'].to_i
+        content = session_state.documents.document_content(uri, data['document_version'])
+        return [content, data['cursor_char'].to_i, data['replace_range']] unless content.nil?
+
+        content = session_state.documents.document_content(uri)
+        return [nil, nil, data['replace_range']] if content.nil?
+
+        line_text = content.split("\n", -1)[line_num].to_s.rstrip
+        prefix = line_text[/[A-Za-z0-9_-]+\z/]
+        replace_range = if prefix.nil?
+                          data['replace_range']
+                        else
+                          LSP.create_range(line_num, line_text.length - prefix.length, line_num, line_text.length)
+                        end
+        [content, line_text.length, replace_range]
+      end
+
+      def attribute_alignment_edits(content, data, char_num, padding)
         return [] unless data['alignment'] == true
 
         raw_padding = data['padding'].to_i
         return [] unless raw_padding.positive? && raw_padding <= MAX_ATTRIBUTE_PADDING
 
-        uri = data['uri']
-        version = data['document_version']
-        return [] if uri.nil? || version.nil?
-
-        content = session_state.documents.document_content(uri, version)
-        return [] if content.nil?
-
         operations = attribute_operations(
           content,
           data['cursor_line'].to_i,
-          data['cursor_char'].to_i,
+          char_num.to_i,
           data['tasks_mode'] == true
         )
         alignment_edits_from_operations(

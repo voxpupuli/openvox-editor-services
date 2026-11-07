@@ -801,14 +801,29 @@ EOT
       before(:each) do
         @completion_response = complete_with_document(content, line_num, char_num, 1)
         @resolve_request = retrieve_completion_response('name', LSP::CompletionItemKind::PROPERTY)
-        session_state.documents.set_document(document_uri, content, 2)
       end
 
-      it 'does not return stale alignment edits' do
+      it 'realigns using the current document' do
+        session_state.documents.set_document(document_uri, content, 2)
+
         result = subject.resolve(session_state, @resolve_request)
 
         expect(result.insertText).to eq('name   => ${1},$0')
-        expect(result.additionalTextEdits).to be_nil
+        edit = result.additionalTextEdits.first
+        expect(edit.newText).to eq(' ')
+        expect(edit.range.start.line).to eq(1)
+        expect(edit.range.start.character).to eq(8)
+        expect(edit.range.end.character).to eq(8)
+      end
+
+      it 'replaces the attribute name currently on the line' do
+        current_content = "user { 'Alice':\n  ensure=> 'present',\n  name\n}\n"
+        session_state.documents.set_document(document_uri, current_content, 2)
+
+        result = subject.resolve(session_state, @resolve_request)
+
+        expect(result.textEdit.range.start.character).to eq(2)
+        expect(result.textEdit.range.end.character).to eq(6)
       end
     end
 
