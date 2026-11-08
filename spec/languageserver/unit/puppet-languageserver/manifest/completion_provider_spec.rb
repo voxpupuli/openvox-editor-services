@@ -116,6 +116,17 @@ describe 'PuppetLanguageServer::Manifest::CompletionProvider' do
           expect(number_of_completion_item_with_type(result, 'resource_property')).to eq(1)
         end
       end
+
+      context 'with a partially typed attribute name' do
+        let(:content) { "mocktype { 'title':\n  pro\n}\n" }
+        let(:line_num) { 1 }
+        let(:char_num) { 5 }
+
+        it 'should return the resource attributes' do
+          result = subject.complete(session_state, content, line_num, char_num)
+          expect(result.items.map(&:label)).to include('param1', 'prop1')
+        end
+      end
     end
   end
 end
