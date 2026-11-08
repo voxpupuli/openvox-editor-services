@@ -11,6 +11,7 @@ The internal `Puppet` Ruby namespace and `puppet/*` protocol methods are retaine
     - [How to run the Language Server for Development](#how-to-run-the-language-server-for-development)
     - [How to run the Language Server in Production](#how-to-run-the-language-server-in-production)
     - [Command line arguments](#command-line-arguments)
+    - [Resource attribute completion](#resource-attribute-completion)
   - [Language Server Sidecar](#language-server-sidecar)
     - [How to run the Language Server Sidecar for Development](#how-to-run-the-language-server-sidecar-for-development)
     - [Example usage](#example-usage)
@@ -145,6 +146,13 @@ For the complete option list, run:
 ```shell
 bundle exec ruby ./openvox-languageserver --help
 ```
+
+### Resource attribute completion
+
+Resource attribute completion aligns hashrockets to the longest attribute name in the resource.
+The alignment padding is capped at 999 characters (`MAX_ATTRIBUTE_PADDING`) because OpenVox/Puppet does not limit identifier length.
+This bounds memory and CPU use for pathological manifests and for client-supplied completion data.
+Attributes longer than the cap are inserted without extra alignment padding.
 
 ## Language Server Sidecar
 

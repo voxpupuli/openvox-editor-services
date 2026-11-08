@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 
+require 'puppet-languageserver/manifest/completion_provider_attributes'
+
 module PuppetLanguageServer
   module Manifest
     module CompletionProvider
+      extend CompletionProviderAttributes
+
       def self.complete(session_state, content, line_num, char_num, options = {})
         options = {
           tasks_mode: false,
-          context: nil # LSP::CompletionContext object
+          context: nil, # LSP::CompletionContext object
+          file_uri: nil
         }.merge(options)
         items = []
         incomplete = false
@@ -62,14 +67,33 @@ module PuppetLanguageServer
           all_functions(session_state, options[:tasks_mode]) { |x| items << x }
 
         when 'Puppet::Pops::Model::ResourceExpression'
-          # We are inside a resource definition.  Should display all available
+          # We are inside a resource definition. Should display all available
           # properities and parameters.
+
+          # The attribute list is computed for the current prefix, and the
+          # client must ask again as the user keeps typing. Otherwise it reuses
+          # completion items whose document version and replacement range have
+          # gone stale.
+          incomplete = true
 
           # Try Types first
           # The `class` pseudo resource type is actually used to set properties/params for the puppet type
           # specified in the resource title.
           # Ref: https://puppet.com/docs/puppet/5.3/lang_classes.html#using-resource-like-declarations
           item_value = item.type_name.value == 'class' && item.bodies.length == 1 ? item.bodies[0].title.value : item.type_name.value
+
+          # Align hashrockets with the longest existing attribute name. A zero
+          # padding means there are no existing attributes. A value above the
+          # cap is pathological and disables alignment entirely.
+          operations = item.bodies.flat_map { |body| body.operations || [] }
+          file_uri = options[:file_uri]
+          document_version = file_uri.nil? ? nil : session_state.documents.document_version(file_uri)
+          resource_data = attribute_resource_data(
+            content, line_num, char_num,
+            { file_uri: file_uri, document_version: document_version, tasks_mode: options[:tasks_mode] },
+            item_value, operations
+          )
+
           item_object = PuppetLanguageServer::PuppetHelper.get_type(session_state, item_value)
           unless item_object.nil?
             # Add Parameters
@@ -78,11 +102,7 @@ module PuppetLanguageServer
                 'label' => name.to_s,
                 'kind' => LSP::CompletionItemKind::PROPERTY,
                 'detail' => 'Parameter',
-                'data' => {
-                  'type' => 'resource_parameter',
-                  'param' => name.to_s,
-                  'resource_type' => item_value
-                }
+                'data' => attribute_data(resource_data, 'resource_parameter', 'param', name)
               )
             end
             # Add Properties
@@ -91,15 +111,12 @@ module PuppetLanguageServer
                 'label' => name.to_s,
                 'kind' => LSP::CompletionItemKind::PROPERTY,
                 'detail' => 'Property',
-                'data' => {
-                  'type' => 'resource_property',
-                  'prop' => name.to_s,
-                  'resource_type' => item_value
-                }
+                'data' => attribute_data(resource_data, 'resource_property', 'prop', name)
               )
             end
             # TODO: What about meta parameters?
           end
+
           if item_object.nil?
             # Try Classes/Defined Types
             item_object = PuppetLanguageServer::PuppetHelper.get_class(session_state, item_value)
@@ -110,11 +127,7 @@ module PuppetLanguageServer
                   'label' => name.to_s,
                   'kind' => LSP::CompletionItemKind::PROPERTY,
                   'detail' => 'Parameter',
-                  'data' => {
-                    'type' => 'resource_class_parameter',
-                    'param' => name.to_s,
-                    'resource_type' => item_value
-                  }
+                  'data' => attribute_data(resource_data, 'resource_class_parameter', 'param', name)
                 )
               end
             end
@@ -128,6 +141,7 @@ module PuppetLanguageServer
       end
 
       # BEGIN CompletionItem Helpers
+
       def self.keywords(keywords = [], &block)
         keywords.each do |keyword|
           item = LSP::CompletionItem.new(
@@ -247,7 +261,7 @@ module PuppetLanguageServer
           return result if item_type.nil?
 
           result.documentation = item_type.doc unless item_type.doc.nil?
-          unless item_type.nil? || item_type.signatures.none?
+          unless item_type.signatures.none?
             result.detail = item_type.signatures.map(&:key).join("\n\n")
             # The signature provider should handle suggestions after this, so just place the cursor ready for an opening bracket
             result.insertText = data['name'].to_s
@@ -282,48 +296,47 @@ module PuppetLanguageServer
 
           result.documentation = item_type.doc unless item_type.doc.nil?
           result.insertText = snippet
-          result.insertTextFormat = LSP::InsertTextFormat::SNIPPET
         when 'resource_parameter'
           item_type = PuppetLanguageServer::PuppetHelper.get_type(session_state, data['resource_type'])
           return result if item_type.nil?
 
           param_type = item_type.attributes[data['param'].intern]
-          unless param_type.nil?
-            # TODO: More things?
-            result.documentation = param_type[:doc] unless param_type[:doc].nil?
-            result.insertText = "#{data['param']} => ,"
-          end
+          return result if param_type.nil?
+
+          # TODO: More things?
+          result.documentation = param_type[:doc] unless param_type[:doc].nil?
+          attribute_insert_text(session_state, result, data, data['param'])
         when 'resource_property'
           item_type = PuppetLanguageServer::PuppetHelper.get_type(session_state, data['resource_type'])
           return result if item_type.nil?
 
           prop_type = item_type.attributes[data['prop'].intern]
-          unless prop_type.nil?
-            # TODO: More things?
-            result.documentation = prop_type[:doc] unless prop_type[:doc].nil?
-            result.insertText = "#{data['prop']} => ,"
-          end
+          return result if prop_type.nil?
+
+          # TODO: More things?
+          result.documentation = prop_type[:doc] unless prop_type[:doc].nil?
+          attribute_insert_text(session_state, result, data, data['prop'])
 
         when 'resource_class'
           item_class = PuppetLanguageServer::PuppetHelper.get_class(session_state, data['name'])
           return result if item_class.nil?
 
           result.insertText = "#{data['name']} { '${1:title}':\n\t$0\n}"
-          result.insertTextFormat = LSP::InsertTextFormat::SNIPPET
         when 'resource_class_parameter'
           item_class = PuppetLanguageServer::PuppetHelper.get_class(session_state, data['resource_type'])
           return result if item_class.nil?
 
           param_type = item_class.parameters[data['param']]
-          unless param_type.nil?
-            doc = ''
-            doc += param_type[:type] unless param_type[:type].nil?
-            doc += "---\n#{param_type[:doc]}" unless param_type[:doc].nil?
-            result.documentation = doc
-            result.insertText = "#{data['param']} => ,"
-          end
+          return result if param_type.nil?
+
+          doc = ''
+          doc += param_type[:type] unless param_type[:type].nil?
+          doc += "---\n#{param_type[:doc]}" unless param_type[:doc].nil?
+          result.documentation = doc
+          attribute_insert_text(session_state, result, data, data['param'])
         end
 
+        result.insertTextFormat = LSP::InsertTextFormat::SNIPPET if data['type'].to_s.start_with?('resource_')
         result
       end
     end
