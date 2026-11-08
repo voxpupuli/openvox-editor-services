@@ -6,4 +6,8 @@ Puppet::Type.newtype(:default_type) do
   newparam(:name, :isnamevar => true) do
     desc "The name of the default_type."
   end
+
+  newcheck(:onlyif) do
+    desc "Only run the command when the test succeeds."
+  end
 end

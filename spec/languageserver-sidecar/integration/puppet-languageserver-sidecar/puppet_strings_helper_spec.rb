@@ -288,7 +288,7 @@ describe 'PuppetLanguageServerSidecar' do
         # Check type specific methods
         expect(item.doc).to match(/Sets the global defaults for all printers on the system./)
         # Check the type attributes
-        expect(item.attributes.count).to eq(2)
+        expect(item.attributes.count).to eq(3)
         param = item.attributes['ensure']
         expect(param[:doc]).to eq('The basic property that the resource should be in.')
         expect(param[:type]).to eq(:property)
@@ -298,6 +298,11 @@ describe 'PuppetLanguageServerSidecar' do
         expect(param[:doc]).to eq('The name of the default_type.')
         expect(param[:type]).to eq(:param)
         expect(param[:isnamevar?]).to eq(true)
+        expect(param[:required?]).to be_nil
+        param = item.attributes['onlyif']
+        expect(param[:doc]).to eq('Only run the command when the test succeeds.')
+        expect(param[:type]).to eq(:param)
+        expect(param[:isnamevar?]).to be_nil
         expect(param[:required?]).to be_nil
       end
     end
