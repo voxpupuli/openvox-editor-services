@@ -3,6 +3,7 @@
 require 'puppet-languageserver/global_queues/single_instance_queue'
 require 'puppet_editor_services/server'
 require 'open3'
+require 'rbconfig'
 
 module PuppetLanguageServer
   module GlobalQueues
@@ -37,7 +38,10 @@ module PuppetLanguageServer
 
         sidecar_path = File.expand_path(File.join(__dir__, '..', '..', '..', 'openvox-languageserver-sidecar'))
         args = ['--action', job_object.action].concat(job_object.additional_args).concat(sidecar_args_from_connection(connection))
-        cmd = ['ruby', sidecar_path].concat(args)
+        # Use the same Ruby interpreter as the language server. Relying on a bare
+        # 'ruby' from PATH can pick up a different runtime which cannot see the
+        # Puppet agent's gems and types.
+        cmd = [RbConfig.ruby, sidecar_path].concat(args)
         PuppetLanguageServer.log_message(:debug, "SidecarQueue Thread: Running sidecar #{cmd}")
         stdout, stderr, status = run_sidecar(cmd)
         PuppetLanguageServer.log_message(:warning, "SidecarQueue Thread: Calling sidecar with #{args.join(' ')} returned exitcode #{status.exitstatus}, #{stderr}")
@@ -162,8 +166,25 @@ module PuppetLanguageServer
         handler.respond_to?(:session_state) ? handler.session_state : nil
       end
 
+      # The language server removes GEM_HOME/GEM_PATH from its own environment
+      # while activating the OpenVox agent runtime. The sidecar is a child
+      # process and still needs the bundled extension gems (openvox-strings,
+      # yard, etc.), so restore them for the sidecar invocation.
+      def sidecar_gem_environment
+        gem_home = File.expand_path(File.join(__dir__, '..', '..', '..', 'gems'))
+        return {} unless Dir.exist?(gem_home)
+
+        # Preserve any GEM_PATH entries inherited from the environment (for
+        # example a user's own gems) instead of replacing them. Keep the
+        # bundled gems first so they win when the same gem is available twice.
+        existing_paths = ENV['GEM_PATH'].to_s.split(File::PATH_SEPARATOR).reject(&:empty?)
+        gem_path = ([gem_home] + existing_paths).uniq.join(File::PATH_SEPARATOR)
+
+        { 'GEM_HOME' => gem_home, 'GEM_PATH' => gem_path }
+      end
+
       def run_sidecar(cmd)
-        Open3.capture3(*cmd)
+        Open3.capture3(sidecar_gem_environment, *cmd)
 
         # The following code should ONLY be uncommented when debugging acceptance tests failures.
         # It caches the sidecar responses so tests sidecar calls will be (VERY) quick, which speeds
@@ -182,7 +203,7 @@ module PuppetLanguageServer
         #   ]
         # end
         # # Rubocop failure is here on purpose
-        # stdout,stderr,status = Open3.capture3(*cmd)
+        # stdout,stderr,status = Open3.capture3(sidecar_gem_environment, *cmd)
         # File.write(cache_file, stdout, mode: 'wb', encoding: 'utf-8')
         # [stdout, stderr, status]
       end

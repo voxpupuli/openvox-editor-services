@@ -294,6 +294,16 @@ module PuppetLanguageServerSidecar
             }
           end
         end
+        # Checks are parameters too. Types such as exec use `newcheck` for
+        # attributes like `creates`, `unless`, `onlyif` and `refreshonly`.
+        unless item[:checks].nil?
+          item[:checks].each do |check|
+            obj.attributes[check[:name]] = {
+              type: :param,
+              doc: check[:description]
+            }
+          end
+        end
 
         if obj.key == 'file'
           # Special case for file type
