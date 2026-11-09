@@ -1,8 +1,16 @@
 # Changelog
 
-## [4.0.0](https://github.com/voxpupuli/openvox-editor-services/tree/4.0.0) (2026-11-06)
+## [4.0.1](https://github.com/voxpupuli/openvox-editor-services/tree/4.0.1) (2026-11-09)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.2...4.0.0)
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v4.0.0...4.0.1)
+
+**Fixed bugs:**
+
+- fix: repair/extend attributes completion [\#88](https://github.com/voxpupuli/openvox-editor-services/pull/88) ([jay7x](https://github.com/jay7x))
+
+## [v4.0.0](https://github.com/voxpupuli/openvox-editor-services/tree/v4.0.0) (2026-11-06)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-editor-services/compare/v3.1.2...v4.0.0)
 
 **Breaking changes:**
 
