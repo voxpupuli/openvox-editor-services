@@ -119,7 +119,7 @@ mkdir -p "$(dirname "${output_file}")"
 echo 'Compiling and checking openvox-vscode'
 (
   cd "${vscode_dir}"
-  npm run compile
+  npm run vscode:prepublish
   node scripts/check-package.mjs
   ./node_modules/.bin/vsce package --out "${output_file}"
 )
