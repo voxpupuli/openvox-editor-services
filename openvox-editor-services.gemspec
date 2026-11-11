@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.executables = %w[ openvox-debugserver openvox-languageserver openvox-languageserver-sidecar ]
   s.files          = FileList['lib/**/*.rb', 'bin/*', '[A-Z]*'].to_a.reject { |file| file.end_with?('.gem') }
   s.license        = 'Apache-2.0'
-  s.add_runtime_dependency 'hiera-eyaml', '~> 2.1'
+  s.add_runtime_dependency 'hiera-eyaml', '~> 5.0'
   s.add_runtime_dependency 'molinillo', '~> 0.6'
   s.add_runtime_dependency 'openfact', '>= 5.1', '< 7'
   s.add_runtime_dependency 'openvox-strings', '~> 7.1'
