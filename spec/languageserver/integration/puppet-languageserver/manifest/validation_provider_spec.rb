@@ -189,9 +189,44 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
     describe "Given an incomplete manifest which has syntax errors" do
       let(:manifest) { 'user { "Bob"' }
 
-      it "should return at least one error" do
-        result = subject.validate(session_state, manifest)
-        expect(result.length).to be > 0
+      it "should return a parser error at the end of the document" do
+        diagnostics = subject.validate(session_state, manifest)
+        diagnostic = diagnostics.find { |item| item.message.include?('Syntax error at end of input') }
+
+        expect(diagnostic).to_not be_nil
+        expect(diagnostic.source).to eq('Puppet')
+        expect(diagnostic.severity).to eq(LSP::DiagnosticSeverity::ERROR)
+        expect(diagnostic.range.start.line).to eq(0)
+        expect(diagnostic.range.start.character).to eq(manifest.length)
+        expect(diagnostic.message).to_not include('Could not parse for environment')
+      end
+    end
+
+    describe "Given a manifest with a single parser validation error with a position" do
+      let(:manifest) { "class foo {\n  $x = \n}\n" }
+
+      it "should return the parser error with a corrected zero-based position" do
+        diagnostics = subject.validate(session_state, manifest)
+        diagnostic = diagnostics.find { |item| item.code == 'SYNTAX_ERROR' }
+
+        expect(diagnostic).to_not be_nil
+        expect(diagnostic.range.start.line).to eq(2)
+        expect(diagnostic.range.start.character).to eq(0)
+        expect(diagnostic.message).to eq("Syntax error at '}'")
+      end
+    end
+
+    describe "Given a manifest with multiple parser validation errors" do
+      let(:manifest) { "class foo {\n  $\n}\n" }
+
+      it "should return every issue that the parser logs instead of an aggregate error" do
+        diagnostics = subject.validate(session_state, manifest)
+        parser_errors = diagnostics.select { |item| item.severity == LSP::DiagnosticSeverity::ERROR }
+
+        expect(parser_errors.map(&:code)).to include('IDEM_NOT_ALLOWED_LAST', 'ILLEGAL_VAR_NAME')
+        expect(parser_errors).to all(satisfy { |item| item.range.start.line == 1 && item.range.start.character == 2 })
+        expect(parser_errors.map(&:message)).to include(a_string_matching(/This Variable has no effect/),
+                                                        a_string_matching(/Illegal variable name/))
       end
     end
 
