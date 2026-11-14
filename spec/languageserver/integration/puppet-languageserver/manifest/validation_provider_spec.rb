@@ -15,6 +15,32 @@ describe 'PuppetLanguageServer::Manifest::ValidationProvider' do
       end
     end
 
+    describe "Given a complete manifest which has a syntax error puppet-lint cannot lex" do
+      let(:manifest) { "class foo {\n  $\n}\n" }
+
+      it "should return no changes and keep the original content" do
+        problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
+        expect(problems_fixed).to eq(0)
+        expect(new_content).to eq(manifest)
+      end
+    end
+
+    describe "Given puppet-lint aborts while fixing" do
+      let(:manifest) { "class foo {}\n" }
+      let(:linter) { instance_double(PuppetLint::Checks) }
+
+      before(:each) do
+        allow(PuppetLint::Checks).to receive(:new).and_return(linter)
+        allow(linter).to receive(:run).and_raise(SystemExit)
+      end
+
+      it "should return no changes and keep the original content" do
+        problems_fixed, new_content = subject.fix_validate_errors(session_state, manifest)
+        expect(problems_fixed).to eq(0)
+        expect(new_content).to eq(manifest)
+      end
+    end
+
     describe "Given a complete manifest which has a single fixable lint errors" do
       let(:manifest) do
         <<~PUPPET

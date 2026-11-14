@@ -18,18 +18,28 @@ module PuppetLanguageServer
         init_puppet_lint(session_state.documents.store_root_path, ['--fix', '--relative'])
 
         linter = PuppetLint::Checks.new
-        lint_aborted = false
         problems = begin
           linter.run(lint_filename(document_uri), content)
         rescue SystemExit
           PuppetLanguageServer.log_message(:error, '(fix_validate_errors) puppet-lint aborted')
-          lint_aborted = true
           nil
         end
-        problems_fixed = problems.nil? ? 0 : problems.count { |item| item[:kind] == :fixed }
 
-        [problems_fixed, lint_aborted ? content : linter.manifest]
+        # When puppet-lint cannot parse the manifest (for example a syntax error)
+        # it discards all of the tokens and `manifest` returns an empty string.
+        # Returning that to the client would replace the document with nothing,
+        # so leave the original content untouched instead.
+        return [0, content] if problems.nil? || syntax_errors?(problems)
+
+        problems_fixed = problems.count { |item| item[:kind] == :fixed }
+
+        [problems_fixed, linter.manifest]
       end
+
+      def self.syntax_errors?(problems)
+        problems.any? { |problem| problem[:kind] == :error && problem[:check] == :syntax }
+      end
+      private_class_method :syntax_errors?
 
       def self.validate(session_state, content, options = {})
         options = {
