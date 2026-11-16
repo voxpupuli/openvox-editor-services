@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'puppet-languageserver/parser_validation_helpers'
 require 'puppet-languageserver/puppet_lint'
 require 'puppet-languageserver/uri_helper'
 module PuppetLanguageServer
@@ -18,18 +19,28 @@ module PuppetLanguageServer
         init_puppet_lint(session_state.documents.store_root_path, ['--fix', '--relative'])
 
         linter = PuppetLint::Checks.new
-        lint_aborted = false
         problems = begin
           linter.run(lint_filename(document_uri), content)
         rescue SystemExit
           PuppetLanguageServer.log_message(:error, '(fix_validate_errors) puppet-lint aborted')
-          lint_aborted = true
           nil
         end
-        problems_fixed = problems.nil? ? 0 : problems.count { |item| item[:kind] == :fixed }
 
-        [problems_fixed, lint_aborted ? content : linter.manifest]
+        # When puppet-lint cannot parse the manifest (for example a syntax error)
+        # it discards all of the tokens and `manifest` returns an empty string.
+        # Returning that to the client would replace the document with nothing,
+        # so leave the original content untouched instead.
+        return [0, content] if problems.nil? || syntax_errors?(problems)
+
+        problems_fixed = problems.count { |item| item[:kind] == :fixed }
+
+        [problems_fixed, linter.manifest]
       end
+
+      def self.syntax_errors?(problems)
+        problems.any? { |problem| problem[:kind] == :error && problem[:check] == :syntax }
+      end
+      private_class_method :syntax_errors?
 
       def self.validate(session_state, content, options = {})
         options = {
@@ -85,35 +96,25 @@ module PuppetLanguageServer
         rescue StandardError
           # If anything catastrophic happens we resort to puppet parsing anyway
         end
-        # TODO: Should I wrap this thing in a big rescue block?
-        Puppet[:code] = content
+        captured = []
+
         env = Puppet.lookup(:current_environment)
         loaders = Puppet::Pops::Loaders.new(env)
         Puppet.override({ loaders: }, 'For puppet parser validate') do
           validation_environment = env
           $PuppetParserMutex.synchronize do # rubocop:disable Style/GlobalVars
             original_taskmode = Puppet[:tasks] if Puppet.tasks_supported?
-            Puppet[:tasks] = options[:tasks_mode] if Puppet.tasks_supported?
-            validation_environment.check_for_reparse
-            validation_environment.known_resource_types.clear
+            ParserValidationHelpers.capture_parser_messages(captured) do
+              Puppet[:code] = content
+              Puppet[:tasks] = options[:tasks_mode] if Puppet.tasks_supported?
+              validation_environment.check_for_reparse
+              validation_environment.known_resource_types.clear
+            end
           ensure
             Puppet[:tasks] = original_taskmode if Puppet.tasks_supported?
           end
         rescue StandardError => e
-          # Sometimes the error is in the cause not the root object itself
-          e = e.cause if !e.respond_to?(:line) && e.respond_to?(:cause)
-          ex_line = e.respond_to?(:line) && !e.line.nil? ? e.line - 1 : nil # Line numbers from puppet exceptions are base 1
-          ex_pos = e.respond_to?(:pos) && !e.pos.nil? ? e.pos : nil # Pos numbers from puppet are base 1
-
-          message = e.respond_to?(:message) ? e.message : nil
-          message = e.basic_message if message.nil? && e.respond_to?(:basic_message)
-
-          unless ex_line.nil? || ex_pos.nil? || message.nil?
-            result << LSP::Diagnostic.new('severity' => LSP::DiagnosticSeverity::ERROR,
-                                          'range' => LSP.create_range(ex_line, ex_pos, ex_line, ex_pos + 1),
-                                          'source' => 'Puppet',
-                                          'message' => message)
-          end
+          result.concat(ParserValidationHelpers.parser_diagnostics(content, e, captured, options[:max_problems]))
         end
 
         result

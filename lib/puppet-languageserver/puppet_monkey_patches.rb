@@ -30,6 +30,16 @@ module Puppet
   end
 end
 
+# Capture the individual parser validation issues that OpenVox logs before it
+# raises an aggregate error. The language server stores a buffer on the current
+# thread while validating a manifest so each issue can become a diagnostic.
+Puppet::Util::Log.newdesttype :lsp_validation_collector do
+  def handle(msg)
+    buffer = Thread.current[:puppet_lsp_validation_messages]
+    buffer << msg if buffer
+  end
+end
+
 # MUST BE LAST!!!!!!
 # Suppress any warning messages to STDOUT.  It can pollute stdout when running in STDIO mode
 Puppet::Util::Log.newdesttype :null_logger do
