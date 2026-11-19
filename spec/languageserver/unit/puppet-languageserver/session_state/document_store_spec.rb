@@ -69,6 +69,45 @@ describe 'PuppetLanguageServer::SessionState::DocumentStore' do
       end
     end
 
+    context 'when the store root path contains a plans directory' do
+      before(:each) do
+        allow(subject).to receive(:store_root_path).and_return('/home/jay/plans/workspace')
+      end
+
+      it 'does not detect manifests under the workspace root as plan files' do
+        file_uri = PuppetLanguageServer::UriHelper.build_file_uri('/home/jay/plans/workspace/manifests/init.pp')
+
+        expect(subject.plan_file?(file_uri)).to be(false)
+      end
+
+      it 'does not detect manifests in a module under the workspace root as plan files' do
+        file_uri = PuppetLanguageServer::UriHelper.build_file_uri('/home/jay/plans/workspace/site-modules/profile/manifests/init.pp')
+
+        expect(subject.plan_file?(file_uri)).to be(false)
+      end
+
+      it 'still detects plans under the workspace root as plan files' do
+        file_uri = PuppetLanguageServer::UriHelper.build_file_uri('/home/jay/plans/workspace/site-modules/profile/plans/my_plan.pp')
+
+        expect(subject.plan_file?(file_uri)).to be(true)
+      end
+
+      it 'handles a store root with a trailing slash' do
+        allow(subject).to receive(:store_root_path).and_return('/home/jay/plans/workspace/')
+        file_uri = PuppetLanguageServer::UriHelper.build_file_uri('/home/jay/plans/workspace/manifests/init.pp')
+
+        expect(subject.plan_file?(file_uri)).to be(false)
+      end
+
+      it 'matches the store root case insensitively when on Windows' do
+        allow(subject).to receive(:windows?).and_return(true)
+        allow(subject).to receive(:store_root_path).and_return('C:/Users/Jay/Plans/Workspace')
+        file_uri = PuppetLanguageServer::UriHelper.build_file_uri('C:/Users/Jay/Plans/Workspace/Manifests/init.pp')
+
+        expect(subject.plan_file?(file_uri)).to be(false)
+      end
+    end
+
     context 'for files which are not plans' do
       not_plan_files.each do |testcase|
         prefixes.each do |prefix|
