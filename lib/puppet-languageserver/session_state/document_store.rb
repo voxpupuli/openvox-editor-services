@@ -132,6 +132,13 @@ module PuppetLanguageServer
         uri_path = PuppetLanguageServer::UriHelper.uri_path(uri)
         return false if uri_path.nil?
 
+        # The workspace itself may contain a directory called 'plans' (for
+        # example a project checked out to ~/plans/my-project). Only the path
+        # below the module or control repo root is relevant when detecting plan
+        # files, otherwise manifests in such a workspace would be validated in
+        # tasks mode.
+        uri_path = relative_to_store_root(uri_path)
+
         # For the text searching below we need a leading slash. That way
         # we don't need to use regexes which is slower
         uri_path = "/#{uri_path}" unless uri_path.start_with?('/')
@@ -252,6 +259,29 @@ module PuppetLanguageServer
         # Ruby only sets File::ALT_SEPARATOR on Windows and the Ruby standard
         # library uses that to test what platform it's on.
         !!File::ALT_SEPARATOR
+      end
+
+      # Returns the path relative to the store root when the path is inside it.
+      # Paths outside of the store root, or stores without a known root, are
+      # returned unchanged.
+      def relative_to_store_root(path)
+        root_path = store_root_path
+        return path if root_path.nil? || root_path.empty?
+
+        # URI paths and Windows drive paths do not always agree on whether a
+        # leading slash is present, so compare them without one.
+        normalized_path = path.tr('\\', '/').sub(%r{\A/+}, '')
+        normalized_root = root_path.tr('\\', '/').sub(%r{\A/+}, '').sub(%r{/+\z}, '')
+        return path if normalized_root.empty?
+
+        prefix = "#{normalized_root}/"
+        inside_root = if windows?
+                        normalized_path.downcase.start_with?(prefix.downcase)
+                      else
+                        normalized_path.start_with?(prefix)
+                      end
+
+        inside_root ? normalized_path[prefix.length..] : path
       end
 
       # Creates a document object based on the Uri
