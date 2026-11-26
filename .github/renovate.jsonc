@@ -10,5 +10,13 @@
     "renovate"
   ],
   // assign PRs to code owners
-  "assigneesFromCodeOwners": true
+  "assigneesFromCodeOwners": true,
+  "packageRules": [
+    {
+      // Keep JSON 3 excluded until the sidecar's workspace JSON loader supports it.
+      "matchManagers": ["bundler"],
+      "matchPackageNames": ["json"],
+      "allowedVersions": "< 3.0"
+    }
+  ]
 }
