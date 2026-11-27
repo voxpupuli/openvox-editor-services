@@ -36,7 +36,7 @@ module PuppetLanguageServer
         connection = connection_from_connection_id(job_object.connection_id)
         raise "Connection is not available for connection id #{job_object.connection_id}" if connection.nil?
 
-        sidecar_path = File.expand_path(File.join(__dir__, '..', '..', '..', 'openvox-languageserver-sidecar'))
+        sidecar_path = File.expand_path(File.join(__dir__, '..', '..', '..', 'bin', 'openvox-languageserver-sidecar'))
         args = ['--action', job_object.action].concat(job_object.additional_args).concat(sidecar_args_from_connection(connection))
         # Use the same Ruby interpreter as the language server. Relying on a bare
         # 'ruby' from PATH can pick up a different runtime which cannot see the
